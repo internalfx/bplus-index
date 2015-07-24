@@ -1,0 +1,19 @@
+{
+  "name": "bplus-index",
+  "version": "0.0.1",
+  "description": "A B+tree",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/internalfx/bplus-index.git"
+  },
+  "author": "Bryan Morris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/internalfx/bplus-index/issues"
+  },
+  "homepage": "https://github.com/internalfx/bplus-index#readme"
+}
