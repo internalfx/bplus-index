@@ -52,19 +52,31 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+	var Leaf = __webpack_require__(1);
+
 	var BPlusIndex = function BPlusIndex() {
+	  var config = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
 	  _classCallCheck(this, BPlusIndex);
 
-	  this.test = true;
+	  this.branchingFactor = config.branchingFactor || 10;
+
+	  console.log(Leaf);
 	};
 
 	module.exports = BPlusIndex;
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	"use strict";
 
 /***/ }
 /******/ ])

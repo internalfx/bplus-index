@@ -1,8 +1,12 @@
 'use strict'
 
+var Leaf = require('./leaf')
+
 class BPlusIndex {
-  constructor () {
-    this.test = true
+  constructor (config={}) {
+    this.branchingFactor = config.branchingFactor || 10
+
+    console.log(Leaf)
   }
 }
 
