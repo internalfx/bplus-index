@@ -4,13 +4,14 @@ var validator = {
 
   getChildRanges: (node, parentRange) => {
     var ranges = []
+
     for (let i = 0; i <= node.keys.length; i++) {
       let range = []
 
       if (i === 0) {
-        range = [Number.MIN_VALUE, node.keys[i]]
+        range = [null, node.keys[i]]
       } else if (i === (node.keys.length)) {
-        range = [node.keys[i - 1], Number.MAX_VALUE]
+        range = [node.keys[i - 1], null]
       } else {
         range = [node.keys[i - 1], node.keys[i]]
       }
@@ -67,11 +68,15 @@ var validator = {
     if (checks.range) {
 
       for (let key of node.keys) {
-        if ((key >= checks.range[0]) === false) {
-          errors.push(`${validator.levelView(level)} ${node.id} has invalid key! - ${key} should be >= ${checks.range[0]}`)
+        if (checks.range[0] !== null) {
+          if ((key >= checks.range[0]) === false) {
+            errors.push(`${validator.levelView(level)} ${node.id} has invalid key! - ${key} should be >= ${checks.range[0]}`)
+          }
         }
-        if ((key < checks.range[1]) === false) {
-          errors.push(`${validator.levelView(level)} ${node.id} has invalid key! - ${key} should be < ${checks.range[1]}`)
+        if (checks.range[1] !== null) {
+          if ((key < checks.range[1]) === false) {
+            errors.push(`${validator.levelView(level)} ${node.id} has invalid key! - ${key} should be < ${checks.range[1]}`)
+          }
         }
       }
 
