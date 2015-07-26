@@ -6,6 +6,7 @@ var utils = require('./utils')
 class BPlusIndex {
   constructor (config={}) {
     this.bf = config.branchingFactor || 3
+    this.debug = config.debug || false
     this.root = new Leaf()
   }
 
@@ -27,15 +28,12 @@ class BPlusIndex {
   }
 
   get (key) {
-    var leaf = this._findLeaf(key)
-    // console.log(leaf)
-    return leaf.get(key)
+    return this._findLeaf(key).get(key)
   }
 
   insert (key, val) {
     var leaf = this._findLeaf(key)
     leaf.insertData(key, val)
-    // console.log(JSON.stringify(this.dumpTree(), null, 2))
     this._splitLeaf(leaf)
   }
 
