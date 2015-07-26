@@ -1,5 +1,7 @@
 'use strict'
 
+// Some code taken with gratitiude from the LokiJS project. Thank you Joe Minichino!
+
 var utils = {
 
   defaultSort: (a, b) => {
