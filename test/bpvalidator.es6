@@ -93,6 +93,5 @@ var validator = {
 }
 
 module.exports = (index) => {
-  // console.log(index)
   return validator.validateNode(index.root)
 }
