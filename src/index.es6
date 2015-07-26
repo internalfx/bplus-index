@@ -29,7 +29,7 @@ class BPlusIndex {
     return this._findLeaf(key).get(key)
   }
 
-  insert (key, val) {
+  inject (key, val) {
     var leaf = this._findLeaf(key)
     leaf.insertData(key, val)
     this._splitLeaf(leaf)

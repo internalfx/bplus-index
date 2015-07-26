@@ -117,8 +117,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return this._findLeaf(key).get(key);
 	    }
 	  }, {
-	    key: 'insert',
-	    value: function insert(key, val) {
+	    key: 'inject',
+	    value: function inject(key, val) {
 	      var leaf = this._findLeaf(key);
 	      leaf.insertData(key, val);
 	      this._splitLeaf(leaf);

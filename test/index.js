@@ -33,12 +33,12 @@ describe('BPlusIndex', function () {
   describe('String key tests', function () {
     var bpindex = new BPlusIndex()
 
-    it('should have a valid structure after every insert (testing 200 times)', function () {
+    it('should have a valid structure after every inject (testing 200 times)', function () {
       var errors = []
 
       for (let i = 0; i < 200; i++) {
         let rec = db[i]
-        bpindex.insert(rec.title, rec.name)
+        bpindex.inject(rec.title, rec.name)
         errors = validate(bpindex)
         if (errors.length > 0) { break }
       }
@@ -48,10 +48,10 @@ describe('BPlusIndex', function () {
       assert.equal(errors.length, 0)
     })
 
-    it('should have a valid structure after 10,000 key inserts', function () {
+    it('should have a valid structure after 10,000 key injections', function () {
 
       for (let rec of db) {
-        bpindex.insert(rec.title, rec.name)
+        bpindex.inject(rec.title, rec.name)
       }
 
       let errors = validate(bpindex)
@@ -65,12 +65,12 @@ describe('BPlusIndex', function () {
   describe('Numeric key tests', function () {
     var bpindex = new BPlusIndex()
 
-    it('should have a valid structure after every insert (testing 200 times)', function () {
+    it('should have a valid structure after every inject (testing 200 times)', function () {
       var errors = []
 
       for (let i = 0; i < 200; i++) {
         let rec = db[i]
-        bpindex.insert(rec.age, rec.name)
+        bpindex.inject(rec.age, rec.name)
         errors = validate(bpindex)
         if (errors.length > 0) { break }
       }
@@ -80,10 +80,10 @@ describe('BPlusIndex', function () {
       assert.equal(errors.length, 0)
     })
 
-    it('should have a valid structure after 10,000 key inserts', function () {
+    it('should have a valid structure after 10,000 key injections', function () {
 
       for (let rec of db) {
-        bpindex.insert(rec.age, rec.name)
+        bpindex.inject(rec.age, rec.name)
       }
 
       let errors = validate(bpindex)
@@ -103,13 +103,13 @@ describe('BPlusIndex', function () {
 //
 // console.time('==== Load BTree')
 // for (let rec of db) {
-//   bpindex.insert(rec.age, rec.name)
+//   bpindex.inject(rec.age, rec.name)
 // }
 // console.timeEnd('==== Load BTree')
 
 // var errors = validate(bpindex)
 // if (errors.length > 0) {
-//   console.log('++++++++++++++++++++ BROKE AFTER ' + i + ' INSERTIONS')
+//   console.log('++++++++++++++++++++ BROKE AFTER ' + i + ' INJECTIONS')
 //   console.log(errors)
 //   break
 // }
