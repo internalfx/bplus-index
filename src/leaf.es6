@@ -4,7 +4,7 @@ var utils = require('./utils')
 
 class Leaf {
   constructor (config={}) {
-    this.id = Math.random()
+    this.id = utils.unique_id()
     this.parent = null
     this.prev = null
     this.next = null

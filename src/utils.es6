@@ -13,6 +13,10 @@ var utils = {
     return array
   },
 
+  unique_id: () => {
+    return `${(Math.random() + 1).toString(36).substr(2)}`
+  },
+
   insertAt: (array, value, index) => {
     array.splice(index, 0, value)
     return array
