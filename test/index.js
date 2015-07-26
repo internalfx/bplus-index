@@ -13,13 +13,13 @@ var BPlusIndex = require('../dist/bplus-index')
 // var benchArray = []
 
 var db = []
-var recCount = 1000
+var recCount = 10000
 
 console.log('Creating database of ' + recCount + ' records.')
 console.time('Done!')
 for (let i = 0; i < recCount; i++) {
   let rec = {
-    age: faker.random.number({max: 1000}),
+    age: faker.random.number({max: 120}),
     name: faker.name.findName(),
     phone: faker.phone.phoneNumber(),
     title: faker.name.jobTitle()
@@ -30,47 +30,68 @@ for (let i = 0; i < recCount; i++) {
 console.timeEnd('Done!')
 
 describe('BPlusIndex', function () {
-  it('should have a valid structure after every insert (testing 100 times)', function () {
-    let bpindex = new BPlusIndex()
-    var errors = []
+  describe('String key tests', function () {
+    var bpindex = new BPlusIndex()
 
-    for (let rec of db) {
-      bpindex.insert(rec.age, rec.name)
-      errors = validate(bpindex)
-      if (errors.length > 0) { break }
-    }
+    it('should have a valid structure after every insert (testing 200 times)', function () {
+      var errors = []
 
-    if (errors.length > 0) console.log(errors)
+      for (let i = 0; i < 200; i++) {
+        let rec = db[i]
+        bpindex.insert(rec.title, rec.name)
+        errors = validate(bpindex)
+        if (errors.length > 0) { break }
+      }
 
-    assert.equal(errors.length, 0)
+      if (errors.length > 0) console.log(errors)
+
+      assert.equal(errors.length, 0)
+    })
+
+    it('should have a valid structure after 10,000 key inserts', function () {
+
+      for (let rec of db) {
+        bpindex.insert(rec.title, rec.name)
+      }
+
+      let errors = validate(bpindex)
+
+      if (errors.length > 0) console.log(errors)
+
+      assert.equal(errors.length, 0)
+    })
   })
 
-  it('should have a valid structure after 1,000 numeric key inserts', function () {
-    let bpindex = new BPlusIndex()
+  describe('Numeric key tests', function () {
+    var bpindex = new BPlusIndex()
 
-    for (let rec of db) {
-      bpindex.insert(rec.age, rec.name)
-    }
+    it('should have a valid structure after every insert (testing 200 times)', function () {
+      var errors = []
 
-    let errors = validate(bpindex)
+      for (let i = 0; i < 200; i++) {
+        let rec = db[i]
+        bpindex.insert(rec.age, rec.name)
+        errors = validate(bpindex)
+        if (errors.length > 0) { break }
+      }
 
-    if (errors.length > 0) console.log(errors)
+      if (errors.length > 0) console.log(errors)
 
-    assert.equal(errors.length, 0)
-  })
+      assert.equal(errors.length, 0)
+    })
 
-  it('should have a valid structure after 1,000 string key inserts', function () {
-    let bpindex = new BPlusIndex()
+    it('should have a valid structure after 10,000 key inserts', function () {
 
-    for (let rec of db) {
-      bpindex.insert(rec.title, rec.name)
-    }
+      for (let rec of db) {
+        bpindex.insert(rec.age, rec.name)
+      }
 
-    let errors = validate(bpindex)
+      let errors = validate(bpindex)
 
-    if (errors.length > 0) console.log(errors)
+      if (errors.length > 0) console.log(errors)
 
-    assert.equal(errors.length, 0)
+      assert.equal(errors.length, 0)
+    })
   })
 })
 

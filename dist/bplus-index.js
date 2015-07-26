@@ -81,8 +81,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var struct = {
 	        id: leaf.id,
 	        keys: leaf.keys,
-
-	        // values: leaf.values,
 	        children: []
 	      };
 
@@ -155,6 +153,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var keys = leaf.keys;
 	        var values = leaf.values;
 
+	        // TODO: Optimize: we could re-use one of the leaves
 	        var leftLeaf = new Leaf();
 	        var rightLeaf = new Leaf();
 
@@ -179,154 +178,169 @@ return /******/ (function(modules) { // webpackBootstrap
 	        rightLeaf.keys = keys.slice(splitPoint);
 	        rightLeaf.values = values.slice(splitPoint);
 
+	        // In a B+tree only leaves contain data, everything else is a node
+
 	        if (parent === null) {
 	          // If we are splitting the root
 	          if (leaf.values.length > 0) {
+	            // If the root is also a leaf (has data)
 	            parent = this.root = new Leaf();
 	            parent.children = [leftLeaf, rightLeaf];
 	            parent.keys = [keys[splitPoint]];
 	            leftLeaf.parent = parent;
 	            rightLeaf.parent = parent;
-	            // console.log('SPLIT ROOT VALUES')
-	            // console.log(JSON.stringify(this.dumpTree(), null, 2))
+	            if (this.debug) {
+	              console.log('SPLIT ROOT LEAF');
+	              console.log(JSON.stringify(this.dumpTree(), null, 2));
+	            }
 	          } else {
-	              parent = this.root = new Leaf();
-	              parent.children = [leftLeaf, rightLeaf];
-	              parent.keys = [keys[splitPoint]];
-	              leftLeaf.parent = parent;
-	              leftLeaf.children = children.slice(0, splitPoint + 1);
-	              var _iteratorNormalCompletion2 = true;
-	              var _didIteratorError2 = false;
-	              var _iteratorError2 = undefined;
+	            // If the root is a node)
+	            parent = this.root = new Leaf();
+	            parent.children = [leftLeaf, rightLeaf];
+	            parent.keys = [keys[splitPoint]];
+	            leftLeaf.parent = parent;
+	            leftLeaf.children = children.slice(0, splitPoint + 1);
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
 
-	              try {
-	                for (var _iterator2 = leftLeaf.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                  var child = _step2.value;
+	            try {
+	              for (var _iterator2 = leftLeaf.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                var child = _step2.value;
 
-	                  child.parent = leftLeaf;
-	                }
-	              } catch (err) {
-	                _didIteratorError2 = true;
-	                _iteratorError2 = err;
-	              } finally {
-	                try {
-	                  if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-	                    _iterator2['return']();
-	                  }
-	                } finally {
-	                  if (_didIteratorError2) {
-	                    throw _iteratorError2;
-	                  }
-	                }
+	                child.parent = leftLeaf;
 	              }
-
-	              rightLeaf.parent = parent;
-	              rightLeaf.keys = keys.slice(splitPoint + 1);
-	              rightLeaf.children = children.slice(splitPoint + 1);
-	              var _iteratorNormalCompletion3 = true;
-
-	              // console.log('SPLIT ROOT NODE')
-	              // console.log(JSON.stringify(this.dumpTree(), null, 2))
-	              var _didIteratorError3 = false;
-	              var _iteratorError3 = undefined;
-
+	            } catch (err) {
+	              _didIteratorError2 = true;
+	              _iteratorError2 = err;
+	            } finally {
 	              try {
-	                for (var _iterator3 = rightLeaf.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                  var child = _step3.value;
-
-	                  child.parent = rightLeaf;
+	                if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+	                  _iterator2['return']();
 	                }
-	              } catch (err) {
-	                _didIteratorError3 = true;
-	                _iteratorError3 = err;
 	              } finally {
-	                try {
-	                  if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-	                    _iterator3['return']();
-	                  }
-	                } finally {
-	                  if (_didIteratorError3) {
-	                    throw _iteratorError3;
-	                  }
+	                if (_didIteratorError2) {
+	                  throw _iteratorError2;
 	                }
 	              }
 	            }
-	        } else {
-	            var childPos = parent.children.indexOf(leaf);
-	            if (leaf.values.length > 0) {
 
-	              utils.replaceAt(parent.keys, leftLeaf.keys[0], childPos - 1);
-	              utils.replaceAt(parent.children, leftLeaf, childPos);
-	              utils.insertAt(parent.keys, rightLeaf.keys[0], childPos);
-	              utils.insertAt(parent.children, rightLeaf, childPos + 1);
-	              // console.log('SPLIT BRANCH VALUES')
-	              // console.log(JSON.stringify(this.dumpTree(), null, 2))
-	              this._splitLeaf(parent);
-	            } else {
+	            rightLeaf.parent = parent;
+	            rightLeaf.keys = keys.slice(splitPoint + 1);
+	            rightLeaf.children = children.slice(splitPoint + 1);
+	            var _iteratorNormalCompletion3 = true;
+	            var _didIteratorError3 = false;
+	            var _iteratorError3 = undefined;
 
-	              rightLeaf.keys = keys.slice(splitPoint + 1);
-	              leftLeaf.children = children.slice(0, splitPoint + 1);
-	              var _iteratorNormalCompletion4 = true;
-	              var _didIteratorError4 = false;
-	              var _iteratorError4 = undefined;
+	            try {
+	              for (var _iterator3 = rightLeaf.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                var child = _step3.value;
 
+	                child.parent = rightLeaf;
+	              }
+	            } catch (err) {
+	              _didIteratorError3 = true;
+	              _iteratorError3 = err;
+	            } finally {
 	              try {
-	                for (var _iterator4 = leftLeaf.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	                  var child = _step4.value;
-
-	                  child.parent = leftLeaf;
+	                if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+	                  _iterator3['return']();
 	                }
-	              } catch (err) {
-	                _didIteratorError4 = true;
-	                _iteratorError4 = err;
 	              } finally {
-	                try {
-	                  if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-	                    _iterator4['return']();
-	                  }
-	                } finally {
-	                  if (_didIteratorError4) {
-	                    throw _iteratorError4;
-	                  }
+	                if (_didIteratorError3) {
+	                  throw _iteratorError3;
 	                }
 	              }
+	            }
 
-	              rightLeaf.children = children.slice(splitPoint + 1);
-	              var _iteratorNormalCompletion5 = true;
-
-	              // utils.replaceAt(parent.keys, leftLeaf.keys[0], childPos - 1)
-	              var _didIteratorError5 = false;
-	              var _iteratorError5 = undefined;
-
-	              try {
-	                for (var _iterator5 = rightLeaf.children[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	                  var child = _step5.value;
-
-	                  child.parent = rightLeaf;
-	                }
-	              } catch (err) {
-	                _didIteratorError5 = true;
-	                _iteratorError5 = err;
-	              } finally {
-	                try {
-	                  if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-	                    _iterator5['return']();
-	                  }
-	                } finally {
-	                  if (_didIteratorError5) {
-	                    throw _iteratorError5;
-	                  }
-	                }
-	              }
-
-	              utils.replaceAt(parent.children, leftLeaf, childPos);
-	              utils.insertAt(parent.keys, keys[splitPoint], childPos);
-	              utils.insertAt(parent.children, rightLeaf, childPos + 1);
-	              // console.log('SPLIT BRANCH NODE')
-	              // console.log(JSON.stringify(this.dumpTree(), null, 2))
-	              this._splitLeaf(parent);
+	            if (this.debug) {
+	              console.log('SPLIT ROOT NODE');
+	              console.log(JSON.stringify(this.dumpTree(), null, 2));
 	            }
 	          }
+	        } else {
+	          // If we are not splitting root
+
+	          var childPos = parent.children.indexOf(leaf);
+
+	          if (leaf.values.length > 0) {
+	            // If we splitting a leaf
+
+	            utils.replaceAt(parent.keys, leftLeaf.keys[0], childPos - 1);
+	            utils.replaceAt(parent.children, leftLeaf, childPos);
+	            utils.insertAt(parent.keys, rightLeaf.keys[0], childPos);
+	            utils.insertAt(parent.children, rightLeaf, childPos + 1);
+	            if (this.debug) {
+	              console.log('SPLIT BRANCH LEAF');
+	              console.log(JSON.stringify(this.dumpTree(), null, 2));
+	            }
+	            this._splitLeaf(parent);
+	          } else {
+	            // If we are splitting a node
+
+	            rightLeaf.keys = keys.slice(splitPoint + 1);
+	            leftLeaf.children = children.slice(0, splitPoint + 1);
+	            var _iteratorNormalCompletion4 = true;
+	            var _didIteratorError4 = false;
+	            var _iteratorError4 = undefined;
+
+	            try {
+	              for (var _iterator4 = leftLeaf.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                var child = _step4.value;
+
+	                child.parent = leftLeaf;
+	              }
+	            } catch (err) {
+	              _didIteratorError4 = true;
+	              _iteratorError4 = err;
+	            } finally {
+	              try {
+	                if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+	                  _iterator4['return']();
+	                }
+	              } finally {
+	                if (_didIteratorError4) {
+	                  throw _iteratorError4;
+	                }
+	              }
+	            }
+
+	            rightLeaf.children = children.slice(splitPoint + 1);
+	            var _iteratorNormalCompletion5 = true;
+	            var _didIteratorError5 = false;
+	            var _iteratorError5 = undefined;
+
+	            try {
+	              for (var _iterator5 = rightLeaf.children[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                var child = _step5.value;
+
+	                child.parent = rightLeaf;
+	              }
+	            } catch (err) {
+	              _didIteratorError5 = true;
+	              _iteratorError5 = err;
+	            } finally {
+	              try {
+	                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+	                  _iterator5['return']();
+	                }
+	              } finally {
+	                if (_didIteratorError5) {
+	                  throw _iteratorError5;
+	                }
+	              }
+	            }
+
+	            utils.replaceAt(parent.children, leftLeaf, childPos);
+	            utils.insertAt(parent.keys, keys[splitPoint], childPos);
+	            utils.insertAt(parent.children, rightLeaf, childPos + 1);
+	            if (this.debug) {
+	              console.log('SPLIT BRANCH NODE');
+	              console.log(JSON.stringify(this.dumpTree(), null, 2));
+	            }
+	            this._splitLeaf(parent);
+	          }
+	        }
 	      }
 	    }
 	  }]);
