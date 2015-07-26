@@ -5,7 +5,7 @@ var utils = require('./utils')
 
 class BPlusIndex {
   constructor (config={}) {
-    this.bf = config.branchingFactor || 3
+    this.bf = config.branchingFactor || 50
     this.debug = config.debug || false
     this.root = new Leaf()
   }
@@ -44,7 +44,6 @@ class BPlusIndex {
       return leaf
     } else {
       for (let i = 0; i <= leaf.size(); i++) {
-        // console.log(`idx=${i} - key=${key} - leaf.keys=${leaf.keys} - leaf.id=${leaf.id}`)
         if (key < leaf.keys[i] || i === leaf.size()) {
           return this._findLeaf(key, leaf.children[i])
         }
@@ -54,7 +53,7 @@ class BPlusIndex {
 
   _splitLeaf (leaf) {
     if (leaf.size() >= this.bf) {
-      // console.log(`SPLIT LEAF ${leaf.id}`)
+      if (this.debug) console.log(`SPLIT LEAF ${leaf.id}`)
       var splitPoint = Math.floor(leaf.size() / 2)
 
       var parent = leaf.parent
