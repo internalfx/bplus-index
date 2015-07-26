@@ -69,7 +69,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _classCallCheck(this, BPlusIndex);
 
-	    this.bf = config.branchingFactor || 3;
+	    this.bf = config.branchingFactor || 50;
+	    this.debug = config.debug || false;
 	    this.root = new Leaf();
 	  }
 
@@ -115,16 +116,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'get',
 	    value: function get(key) {
-	      var leaf = this._findLeaf(key);
-	      // console.log(leaf)
-	      return leaf.get(key);
+	      return this._findLeaf(key).get(key);
 	    }
 	  }, {
 	    key: 'insert',
 	    value: function insert(key, val) {
 	      var leaf = this._findLeaf(key);
 	      leaf.insertData(key, val);
-	      // console.log(JSON.stringify(this.dumpTree(), null, 2))
 	      this._splitLeaf(leaf);
 	    }
 
@@ -137,7 +135,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return leaf;
 	      } else {
 	        for (var i = 0; i <= leaf.size(); i++) {
-	          // console.log(`idx=${i} - key=${key} - leaf.keys=${leaf.keys} - leaf.id=${leaf.id}`)
 	          if (key < leaf.keys[i] || i === leaf.size()) {
 	            return this._findLeaf(key, leaf.children[i]);
 	          }
@@ -148,7 +145,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: '_splitLeaf',
 	    value: function _splitLeaf(leaf) {
 	      if (leaf.size() >= this.bf) {
-	        // console.log(`SPLIT LEAF ${leaf.id}`)
+	        if (this.debug) console.log('SPLIT LEAF ' + leaf.id);
 	        var splitPoint = Math.floor(leaf.size() / 2);
 
 	        var parent = leaf.parent;
@@ -357,7 +354,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _classCallCheck(this, Leaf);
 
-	    this.id = Math.random();
+	    this.id = utils.unique_id();
 	    this.parent = null;
 	    this.prev = null;
 	    this.next = null;
@@ -401,6 +398,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
+	// Some code taken with gratitiude from the LokiJS project. Thank you Joe Minichino!
+
 	var utils = {
 
 	  defaultSort: function defaultSort(a, b) {
@@ -410,6 +409,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  sortedInsert: function sortedInsert(key, array) {
 	    array.splice(utils.insertionPoint(key, array) + 1, 0, key);
 	    return array;
+	  },
+
+	  unique_id: function unique_id() {
+	    return '' + (Math.random() + 1).toString(36).substr(2);
 	  },
 
 	  insertAt: function insertAt(array, value, index) {
