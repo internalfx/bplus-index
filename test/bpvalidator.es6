@@ -38,19 +38,27 @@ var validator = {
     return text
   },
 
-  validateNode: (node, checks={}) => {
+  validateNode: (tree, node=null, checks={}) => {
     var level = checks.level || 1
+    node = node || tree.root
     var errors = []
+    var childRanges = validator.getChildRanges(node, checks.range)
+    var minKeys = Math.floor(tree.bf / 2) - 1
+    var maxKeys = tree.bf
 
-    if (node.children.length > 0) {
-      var childRanges = validator.getChildRanges(node, checks.range)
+    // Check node for correct number of keys
+    if (node.size() >= maxKeys) {
+      errors.push(`${validator.levelView(level)} ${node.id} has too many keys! - should have no more than ${maxKeys} (has ${node.size()})`)
+    }
+    if (node.size() < minKeys) {
+      if (node !== tree.root) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too few keys! - should have no less than ${minKeys} (has ${node.size()})`)
+      }
     }
 
-    if (node.parent === null) {
-      for (let i = 0; i < node.children.length; i++) {
-        errors = errors.concat(validator.validateNode(node.children[i], {parent: node, level: 1}))
-        errors = errors.concat(validator.validateNode(node.children[i], {range: childRanges[i], level: 1}))
-      }
+    // Check for correct number of children
+    if (node.values.length === 0 && node.size() !== (node.children.length - 1)) {
+      errors.push(`${validator.levelView(level)} ${node.id} number children does not match number of keys! - (has ${node.size()} keys, and ${node.children.length} children)`)
     }
 
     // Validate parent child relationship
@@ -58,15 +66,10 @@ var validator = {
       if (node.parent !== checks.parent) {
         errors.push(`${validator.levelView(level)} ${node.id} has invalid parent! - should be child of ${checks.parent.id}`)
       }
-
-      for (let i = 0; i < node.children.length; i++) {
-        errors = errors.concat(validator.validateNode(node.children[i], {parent: node, level: level + 1}))
-      }
     }
 
     // Validate keys
     if (checks.range) {
-
       for (let key of node.keys) {
         if (checks.range[0] !== null) {
           if ((key >= checks.range[0]) === false) {
@@ -79,12 +82,10 @@ var validator = {
           }
         }
       }
+    }
 
-      if (node.children.length > 0) {
-        for (let i = 0; i < node.children.length; i++) {
-          errors = errors.concat(validator.validateNode(node.children[i], {range: childRanges[i], level: level + 1}))
-        }
-      }
+    for (let i = 0; i < node.children.length; i++) {
+      errors = errors.concat(validator.validateNode(tree, node.children[i], {parent: node, range: childRanges[i], level: level + 1}))
     }
 
     return errors
@@ -92,6 +93,6 @@ var validator = {
 
 }
 
-module.exports = (index) => {
-  return validator.validateNode(index.root)
+module.exports = (tree) => {
+  return validator.validateNode(tree)
 }

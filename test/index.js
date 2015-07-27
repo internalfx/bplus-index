@@ -6,14 +6,14 @@
 require('babel/register')
 
 var _ = require('lodash')
+var assert = require('chai').assert
 var faker = require('faker')
-var assert = require('assert')
 var validate = require('./bpvalidator.es6')
 var BPlusIndex = require('../dist/bplus-index')
 // var benchArray = []
 
 var db = []
-var recCount = 10000
+var recCount = 5000
 
 console.log('Creating database of ' + recCount + ' records.')
 console.time('Done!')
@@ -33,22 +33,43 @@ describe('BPlusIndex', function () {
   describe('String key tests', function () {
     var bpindex = new BPlusIndex()
 
-    it('should have a valid structure after every inject (testing 200 times)', function () {
+    it('should have a valid structure after every inject (testing 50 times)', function () {
       var errors = []
 
-      for (let i = 0; i < 200; i++) {
+      for (let i = 0; i < 50; i++) {
         let rec = db[i]
         bpindex.inject(rec.title, rec.name)
         errors = validate(bpindex)
         if (errors.length > 0) { break }
       }
 
-      if (errors.length > 0) console.log(errors)
+      if (errors.length > 0) {
+        console.log(errors)
+        console.log(bpindex.dumpTree())
+      }
 
-      assert.equal(errors.length, 0)
+      assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
 
-    it('should have a valid structure after 10,000 key injections', function () {
+    it('should have a valid structure after every eject (testing 50 times)', function () {
+      var errors = []
+
+      for (let i = 0; i < 50; i++) {
+        let rec = db[i]
+        bpindex.eject(rec.title, rec.name)
+        errors = validate(bpindex)
+        if (errors.length > 0) { break }
+      }
+
+      if (errors.length > 0) {
+        console.log(errors)
+        console.log(JSON.stringify(bpindex.dumpTree(), null, 4))
+      }
+
+      assert.lengthOf(errors, 0, 'Errors array is not empty')
+    })
+
+    it('should have a valid structure after ' + recCount + ' key injections', function () {
 
       for (let rec of db) {
         bpindex.inject(rec.title, rec.name)
@@ -56,10 +77,14 @@ describe('BPlusIndex', function () {
 
       let errors = validate(bpindex)
 
-      if (errors.length > 0) console.log(errors)
+      if (errors.length > 0) {
+        console.log(errors)
+        console.log(JSON.stringify(bpindex.dumpTree(), null, 4))
+      }
 
-      assert.equal(errors.length, 0)
+      assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
+
   })
 
   describe('Numeric key tests', function () {
@@ -75,12 +100,15 @@ describe('BPlusIndex', function () {
         if (errors.length > 0) { break }
       }
 
-      if (errors.length > 0) console.log(errors)
+      if (errors.length > 0) {
+        console.log(errors)
+        console.log(JSON.stringify(bpindex.dumpTree(), null, 4))
+      }
 
-      assert.equal(errors.length, 0)
+      assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
 
-    it('should have a valid structure after 10,000 key injections', function () {
+    it('should have a valid structure after ' + recCount + ' key injections', function () {
 
       for (let rec of db) {
         bpindex.inject(rec.age, rec.name)
@@ -88,9 +116,12 @@ describe('BPlusIndex', function () {
 
       let errors = validate(bpindex)
 
-      if (errors.length > 0) console.log(errors)
+      if (errors.length > 0) {
+        console.log(errors)
+        console.log(JSON.stringify(bpindex.dumpTree(), null, 4))
+      }
 
-      assert.equal(errors.length, 0)
+      assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
   })
 })

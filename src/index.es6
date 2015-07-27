@@ -5,7 +5,7 @@ var utils = require('./utils')
 
 class BPlusIndex {
   constructor (config={}) {
-    this.bf = config.branchingFactor || 50
+    this.bf = config.branchingFactor || 10
     this.debug = config.debug || false
     this.root = new Leaf()
   }
@@ -31,8 +31,14 @@ class BPlusIndex {
 
   inject (key, val) {
     var leaf = this._findLeaf(key)
-    leaf.insertData(key, val)
+    leaf.injectData(key, val)
     this._splitLeaf(leaf)
+  }
+
+  eject (key, val) {
+    var leaf = this._findLeaf(key)
+    leaf.ejectData(key, val)
+    this._mergeLeaf(leaf)
   }
 
   // Private Methods
@@ -154,6 +160,12 @@ class BPlusIndex {
 
         }
       }
+    }
+  }
+
+  _mergeLeaf (leaf) {
+    if (leaf.size() < Math.floor(this.bf / 2)) {
+      if (this.debug) console.log(`MERGE LEAF ${leaf.id}`)
     }
   }
 }

@@ -2,6 +2,8 @@
 
 // Some code taken with gratitiude from the LokiJS project. Thank you Joe Minichino!
 
+var pullAt = require('lodash.pullat')
+
 var utils = {
 
   defaultSort: (a, b) => {
@@ -19,6 +21,11 @@ var utils = {
 
   insertAt: (array, value, index) => {
     array.splice(index, 0, value)
+    return array
+  },
+
+  removeAt: (array, index) => {
+    pullAt(array, index)
     return array
   },
 
