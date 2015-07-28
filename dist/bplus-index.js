@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _classCallCheck(this, BPlusIndex);
 
-	    this.bf = config.branchingFactor || 10;
+	    this.bf = config.branchingFactor || 50;
 	    this.debug = config.debug || false;
 	    this.root = new Leaf();
 	  }
@@ -81,6 +81,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var struct = {
 	        id: leaf.id,
 	        keys: leaf.keys,
+	        values: leaf.values,
 	        children: []
 	      };
 
@@ -119,6 +120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'inject',
 	    value: function inject(key, val) {
+	      if (this.debug) console.log('INJECT ' + key);
 	      var leaf = this._findLeaf(key);
 	      leaf.injectData(key, val);
 	      this._splitLeaf(leaf);
@@ -126,9 +128,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'eject',
 	    value: function eject(key, val) {
+	      if (this.debug) console.log('EJECT ' + key);
 	      var leaf = this._findLeaf(key);
 	      leaf.ejectData(key, val);
 	      this._mergeLeaf(leaf);
+	    }
+	  }, {
+	    key: '_minKeys',
+	    value: function _minKeys() {
+	      return Math.floor(this.bf / 2);
+	    }
+	  }, {
+	    key: '_maxKeys',
+	    value: function _maxKeys() {
+	      return this.bf - 1;
 	    }
 
 	    // Private Methods
@@ -149,8 +162,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '_splitLeaf',
 	    value: function _splitLeaf(leaf) {
-	      if (leaf.size() >= this.bf) {
-	        if (this.debug) console.log('SPLIT LEAF ' + leaf.id);
+	      if (leaf.size() > this._maxKeys()) {
+	        if (this.debug) {
+	          console.log('BEFORE SPLIT LEAF ' + leaf.id);
+	          console.log(JSON.stringify(this.dumpTree(), null, 2));
+	        }
 	        var splitPoint = Math.floor(leaf.size() / 2);
 
 	        var parent = leaf.parent;
@@ -187,7 +203,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // In a B+tree only leaves contain data, everything else is a node
 
-	        if (parent === null) {
+	        if (leaf === this.root) {
 	          // If we are splitting the root
 	          if (leaf.values.length > 0) {
 	            // If the root is also a leaf (has data)
@@ -207,59 +223,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            parent.keys = [keys[splitPoint]];
 	            leftLeaf.parent = parent;
 	            leftLeaf.children = children.slice(0, splitPoint + 1);
-	            var _iteratorNormalCompletion2 = true;
-	            var _didIteratorError2 = false;
-	            var _iteratorError2 = undefined;
-
-	            try {
-	              for (var _iterator2 = leftLeaf.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                var child = _step2.value;
-
-	                child.parent = leftLeaf;
-	              }
-	            } catch (err) {
-	              _didIteratorError2 = true;
-	              _iteratorError2 = err;
-	            } finally {
-	              try {
-	                if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-	                  _iterator2['return']();
-	                }
-	              } finally {
-	                if (_didIteratorError2) {
-	                  throw _iteratorError2;
-	                }
-	              }
-	            }
+	            leftLeaf.setParentOnChildren();
 
 	            rightLeaf.parent = parent;
 	            rightLeaf.keys = keys.slice(splitPoint + 1);
 	            rightLeaf.children = children.slice(splitPoint + 1);
-	            var _iteratorNormalCompletion3 = true;
-	            var _didIteratorError3 = false;
-	            var _iteratorError3 = undefined;
-
-	            try {
-	              for (var _iterator3 = rightLeaf.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                var child = _step3.value;
-
-	                child.parent = rightLeaf;
-	              }
-	            } catch (err) {
-	              _didIteratorError3 = true;
-	              _iteratorError3 = err;
-	            } finally {
-	              try {
-	                if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-	                  _iterator3['return']();
-	                }
-	              } finally {
-	                if (_didIteratorError3) {
-	                  throw _iteratorError3;
-	                }
-	              }
-	            }
-
+	            rightLeaf.setParentOnChildren();
 	            if (this.debug) {
 	              console.log('SPLIT ROOT NODE');
 	              console.log(JSON.stringify(this.dumpTree(), null, 2));
@@ -271,7 +240,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var childPos = parent.children.indexOf(leaf);
 
 	          if (leaf.values.length > 0) {
-	            // If we splitting a leaf
+	            // If we are splitting a leaf
 
 	            utils.replaceAt(parent.keys, leftLeaf.keys[0], childPos - 1);
 	            utils.replaceAt(parent.children, leftLeaf, childPos);
@@ -287,57 +256,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            rightLeaf.keys = keys.slice(splitPoint + 1);
 	            leftLeaf.children = children.slice(0, splitPoint + 1);
-	            var _iteratorNormalCompletion4 = true;
-	            var _didIteratorError4 = false;
-	            var _iteratorError4 = undefined;
-
-	            try {
-	              for (var _iterator4 = leftLeaf.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	                var child = _step4.value;
-
-	                child.parent = leftLeaf;
-	              }
-	            } catch (err) {
-	              _didIteratorError4 = true;
-	              _iteratorError4 = err;
-	            } finally {
-	              try {
-	                if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-	                  _iterator4['return']();
-	                }
-	              } finally {
-	                if (_didIteratorError4) {
-	                  throw _iteratorError4;
-	                }
-	              }
-	            }
-
+	            leftLeaf.setParentOnChildren();
 	            rightLeaf.children = children.slice(splitPoint + 1);
-	            var _iteratorNormalCompletion5 = true;
-	            var _didIteratorError5 = false;
-	            var _iteratorError5 = undefined;
-
-	            try {
-	              for (var _iterator5 = rightLeaf.children[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	                var child = _step5.value;
-
-	                child.parent = rightLeaf;
-	              }
-	            } catch (err) {
-	              _didIteratorError5 = true;
-	              _iteratorError5 = err;
-	            } finally {
-	              try {
-	                if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-	                  _iterator5['return']();
-	                }
-	              } finally {
-	                if (_didIteratorError5) {
-	                  throw _iteratorError5;
-	                }
-	              }
-	            }
-
+	            rightLeaf.setParentOnChildren();
 	            utils.replaceAt(parent.children, leftLeaf, childPos);
 	            utils.insertAt(parent.keys, keys[splitPoint], childPos);
 	            utils.insertAt(parent.children, rightLeaf, childPos + 1);
@@ -353,8 +274,156 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: '_mergeLeaf',
 	    value: function _mergeLeaf(leaf) {
-	      if (leaf.size() < Math.floor(this.bf / 2)) {
-	        if (this.debug) console.log('MERGE LEAF ' + leaf.id);
+	      if (leaf.hasChildren()) {
+	        if (leaf.children.length > this._minKeys()) {
+	          if (leaf.children.length > leaf.keys.length) {
+	            return; // Doesn't need to merge
+	          }
+	        }
+	      } else {
+	          if (leaf.size() >= this._minKeys()) {
+	            return; // Doesn't need to merge
+	          }
+	        }
+
+	      if (this.debug) {
+	        console.log('BEFORE MERGE LEAF ' + leaf.id);
+	        console.log(JSON.stringify(this.dumpTree(), null, 2));
+	      }
+
+	      if (leaf === this.root) {
+	        // If we are merging the root
+	        if (leaf.children.length === 1) {
+	          leaf.children[0].parent = null;
+	          this.root = leaf.children[0];
+
+	          leaf.children = null;
+	        } else {
+	          // leaf.updateKeys()
+	          leaf.setParentOnChildren();
+	        }
+	      } else {
+	        // Check Siblings
+	        var childPos = leaf.parent.children.indexOf(leaf);
+	        var leftSibling = null;
+	        var rightSibling = null;
+
+	        if (childPos > 0) {
+	          leftSibling = leaf.parent.children[childPos - 1];
+	        }
+
+	        if (childPos < leaf.parent.children.length - 1) {
+	          rightSibling = leaf.parent.children[childPos + 1];
+	        }
+
+	        if (leaf.children.length > 0) {
+	          // If we are merging a branch
+
+	          // Try to get a key from a sibling if they are big enough
+	          if (leftSibling && leftSibling.size() > this._minKeys()) {
+	            // Check the left sibling
+
+	            leaf.keys.unshift(leftSibling.keys.pop());
+	            leaf.children.unshift(leftSibling.children.pop());
+	            utils.replaceAt(leaf.parent.keys, leaf.keys[0], childPos - 1);
+	            // leaf.updateKeys()
+	            leaf.setParentOnChildren();
+	            // leftSibling.updateKeys()
+	            leftSibling.setParentOnChildren();
+
+	            // leaf.parent.updateKeys()
+	          } else if (rightSibling && rightSibling.size() > this._minKeys()) {
+	              // Check the right sibling
+
+	              leaf.keys.push(rightSibling.keys.shift());
+	              leaf.children.push(rightSibling.children.shift());
+	              utils.replaceAt(leaf.parent.keys, rightSibling.keys[0], leaf.parent.children.indexOf(rightSibling) - 1);
+	              // leaf.updateKeys()
+	              leaf.setParentOnChildren();
+	              // rightSibling.updateKeys()
+	              rightSibling.setParentOnChildren();
+
+	              // leaf.parent.updateKeys()
+	            } else {
+
+	                if (leftSibling) {
+	                  // Copy remaining keys and children to a sibling
+	                  leftSibling.keys = leftSibling.keys.concat(leaf.keys);
+	                  leftSibling.children = leftSibling.children.concat(leaf.children);
+	                  // leftSibling.updateKeys()
+	                  leftSibling.setParentOnChildren();
+	                } else {
+	                  rightSibling.keys = leaf.keys.concat(rightSibling.keys);
+	                  rightSibling.children = leaf.children.concat(rightSibling.children);
+	                  // rightSibling.updateKeys()
+	                  rightSibling.setParentOnChildren();
+	                }
+
+	                // Empty Leaf
+	                leaf.keys = [];
+	                leaf.children = [];
+
+	                // Remove leaf from parent
+	                utils.removeAt(leaf.parent.children, childPos);
+
+	                // Update keys on parent branch
+	                // leaf.parent.updateKeys()
+	              }
+
+	          if (this.debug) {
+	            console.log('MERGE BRANCH NODE');
+	            console.log(JSON.stringify(this.dumpTree(), null, 2));
+	          }
+
+	          this._mergeLeaf(leaf.parent);
+	        } else {
+	          // If we are merging a leaf
+
+	          // Try to get a key from a sibling if they are big enough
+	          if (leftSibling && leftSibling.size() > this._minKeys()) {
+	            // Check the left sibling
+
+	            leaf.keys.unshift(leftSibling.keys.pop());
+	            leaf.values.unshift(leftSibling.values.pop());
+	            utils.replaceAt(leaf.parent.keys, leaf.keys[0], childPos - 1);
+	          } else if (rightSibling && rightSibling.size() > this._minKeys()) {
+	            // Check the right sibling
+
+	            leaf.keys.push(rightSibling.keys.shift());
+	            leaf.values.push(rightSibling.values.shift());
+	            utils.replaceAt(leaf.parent.keys, rightSibling.keys[0], leaf.parent.children.indexOf(rightSibling) - 1);
+	          } else {
+	            // There is no sibling to get a value from, remove the leaf
+
+	            if (leftSibling) {
+	              // Copy remaining keys and values to a sibling
+	              leftSibling.keys = leftSibling.keys.concat(leaf.keys);
+	              leftSibling.values = leftSibling.values.concat(leaf.values);
+	              leftSibling.next = leaf.next;
+	            } else {
+	              rightSibling.keys = leaf.keys.concat(rightSibling.keys);
+	              rightSibling.values = leaf.values.concat(rightSibling.values);
+	              rightSibling.prev = leaf.prev;
+	            }
+
+	            // Empty Leaf
+	            leaf.keys = [];
+	            leaf.values = [];
+
+	            // Remove leaf from parent
+	            utils.removeAt(leaf.parent.children, childPos);
+
+	            // // Update keys on parent branch
+	            leaf.parent.updateKeys();
+	          }
+
+	          if (this.debug) {
+	            console.log('MERGE BRANCH LEAF');
+	            console.log(JSON.stringify(this.dumpTree(), null, 2));
+	          }
+
+	          this._mergeLeaf(leaf.parent);
+	        }
 	      }
 	    }
 	  }]);
@@ -393,13 +462,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  _createClass(Leaf, [{
 	    key: 'injectData',
-	    value: function injectData(key, val) {
-	      var location = utils.binarySearch(this.keys, key);
-	      if (location.found) {
-	        this.values[location.index].push(val);
-	      } else {
-	        utils.insertAt(this.keys, key, location.index);
-	        utils.insertAt(this.values, [val], location.index);
+	    value: function injectData(key) {
+	      var val = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+	      if (val !== null) {
+	        var location = utils.binarySearch(this.keys, key);
+	        if (location.found) {
+	          this.values[location.index].push(val);
+	        } else {
+	          utils.insertAt(this.keys, key, location.index);
+	          utils.insertAt(this.values, [val], location.index);
+	        }
 	      }
 	    }
 	  }, {
@@ -419,7 +492,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          if (dataLocation.found) {
 	            utils.removeAt(this.values[keyLocation.index], dataLocation.index);
 	            if (this.values[keyLocation.index].length === 0) {
-	              // if this was the last value at this key, delete it.
+	              // if this was the last value at this key, delete the key too.
 	              utils.removeAt(this.keys, keyLocation.index);
 	              utils.removeAt(this.values, keyLocation.index);
 	            }
@@ -430,13 +503,64 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'get',
 	    value: function get(key) {
-	      var location = utils.binarySearch(this.keys, key).index;
-	      return this.values[location];
+	      var location = utils.binarySearch(this.keys, key);
+	      if (location.found) {
+	        return this.values[location.index];
+	      } else {
+	        return null;
+	      }
 	    }
 	  }, {
 	    key: 'size',
 	    value: function size() {
 	      return this.keys.length;
+	    }
+	  }, {
+	    key: 'hasChildren',
+	    value: function hasChildren() {
+	      return this.children.length > 0;
+	    }
+	  }, {
+	    key: 'setParentOnChildren',
+	    value: function setParentOnChildren() {
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+
+	      try {
+	        for (var _iterator = this.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var child = _step.value;
+
+	          child.parent = this;
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator['return']) {
+	            _iterator['return']();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'updateKeys',
+	    value: function updateKeys() {
+	      if (this.hasChildren()) {
+	        var keys = [];
+	        for (var i = 1; i < this.children.length; i++) {
+	          var child = this.children[i];
+	          keys.push(child.keys[0]);
+	        }
+	        if (keys.length > 0) {
+	          this.keys = keys;
+	        }
+	      }
 	    }
 	  }]);
 
