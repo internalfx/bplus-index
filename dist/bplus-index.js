@@ -369,7 +369,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Empty Leaf
 	            leaf.keys = [];
 	            leaf.children = [];
-	            // leaf.updateKeys()
 
 	            // Remove leaf from parent
 	            utils.removeAt(leaf.parent.children, childPos);
