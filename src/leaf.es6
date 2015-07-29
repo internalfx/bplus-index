@@ -52,7 +52,7 @@ class Leaf {
     if (location.found) {
       return this.values[location.index]
     } else {
-      return null
+      return []
     }
   }
 
@@ -88,7 +88,7 @@ class Leaf {
       var keys = []
       for (let i = 1; i < this.children.length; i++) {
         let child = this.children[i]
-        keys.push(this.detectKey(child))
+        keys.push(utils.detectKey(child))
       }
       if (keys.length > 0) {
         this.keys = keys
@@ -96,13 +96,6 @@ class Leaf {
     }
   }
 
-  detectKey (node) {
-    if (node.hasChildren()) {
-      return this.detectKey(node.children[0])
-    } else {
-      return node.keys[0]
-    }
-  }
 }
 
 module.exports = Leaf

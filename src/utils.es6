@@ -73,6 +73,14 @@ var utils = {
       found: false,
       index: hi
     }
+  },
+
+  detectKey: (node) => {
+    if (node.hasChildren()) {
+      return utils.detectKey(node.children[0])
+    } else {
+      return node.keys[0]
+    }
   }
 
 }

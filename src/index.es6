@@ -2,6 +2,7 @@
 
 var Leaf = require('./leaf')
 var utils = require('./utils')
+var merge = require('lodash.merge')
 
 class BPlusIndex {
   constructor (config={}) {
@@ -30,6 +31,79 @@ class BPlusIndex {
 
   get (key) {
     return this._findLeaf(key).get(key)
+  }
+
+  getAll (opts={}) {
+    var options = merge({sortDescending: false}, opts)
+    var startLeaf = this._findLeaf(utils.detectKey(this.root))
+    var currLoc = {index: 0, leaf: startLeaf}
+    var result = []
+
+    while (currLoc !== null) {
+      result = result.concat(currLoc.leaf.values[currLoc.index])
+      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+    }
+
+    if (options.sortDescending === true) {
+      result.reverse()
+    }
+
+    return result
+
+  }
+
+  getRange (lowerBound, upperBound, opts={}) {
+    var options = merge({lowerInclusive: true, upperInclusive: false, sortDescending: false}, opts)
+    var result = []
+
+    var startLeaf = this._findLeaf(lowerBound)
+
+    var loc = utils.binarySearch(startLeaf.keys, lowerBound)
+    var currLoc = {index: loc.index, leaf: startLeaf}
+
+    if (loc.index >= startLeaf.keys.length) {
+      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+    }
+
+    if (loc.found && options.lowerInclusive === false) {
+      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+    }
+
+    while (currLoc.leaf.keys[currLoc.index] < upperBound) {
+      result = result.concat(currLoc.leaf.values[currLoc.index])
+      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+    }
+
+    if (currLoc.leaf.keys[currLoc.index] <= upperBound && options.upperInclusive === true) {
+      result = result.concat(currLoc.leaf.values[currLoc.index])
+    }
+
+    if (options.sortDescending === true) {
+      result.reverse()
+    }
+
+    return result
+
+  }
+
+  stepForward (index, leaf) {
+    if (index + 1 < leaf.keys.length) {
+      return {index: (index + 1), leaf: leaf}
+    } else if (leaf.next) {
+      return {index: 0, leaf: leaf.next}
+    } else {
+      return null
+    }
+  }
+
+  stepBackward (index, leaf) {
+    if (index - 1 < 0) {
+      return {index: (index - 1), leaf: leaf}
+    } else if (leaf.prev) {
+      return {index: (leaf.prev.keys.length - 1), leaf: leaf.prev}
+    } else {
+      return null
+    }
   }
 
   inject (key, val) {
@@ -66,11 +140,9 @@ class BPlusIndex {
     if (leaf.children.length === 0) {
       return leaf
     } else {
-      for (let i = 0; i <= leaf.size(); i++) {
-        if (key < leaf.keys[i] || i === leaf.size()) {
-          return this._findLeaf(key, leaf.children[i])
-        }
-      }
+      var loc = utils.binarySearch(leaf.keys, key)
+      var index = loc.found ? loc.index + 1 : loc.index
+      return this._findLeaf(key, leaf.children[index])
     }
   }
 
@@ -149,7 +221,9 @@ class BPlusIndex {
 
         if (leaf.values.length > 0) { // If we are splitting a leaf
 
-          utils.replaceAt(parent.keys, leftLeaf.keys[0], childPos - 1)
+          if (childPos !== 0) {
+            utils.replaceAt(parent.keys, leftLeaf.keys[0], childPos - 1)
+          }
           utils.replaceAt(parent.children, leftLeaf, childPos)
           utils.insertAt(parent.keys, rightLeaf.keys[0], childPos)
           utils.insertAt(parent.children, rightLeaf, childPos + 1)
