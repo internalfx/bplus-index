@@ -43,27 +43,79 @@ var validator = {
     node = node || tree.root
     var errors = []
     var childRanges = validator.getChildRanges(node, checks.range)
-    var minKeys = Math.floor(tree.bf / 2) - 1
-    var maxKeys = tree.bf
+    var minNodeKeys = Math.floor(tree.bf / 2) - 1
+    var minChildren = Math.floor(tree.bf / 2)
+    var maxNodeKeys = tree.bf - 1
+    var maxChildren = tree.bf
+    var nodeType = node.hasChildren() ? 'node' : 'leaf'
+    var isRoot = node === tree.root
 
-    // Check node for correct number of keys
-    if (node.size() >= maxKeys) {
-      errors.push(`${validator.levelView(level)} ${node.id} has too many keys! - should have no more than ${maxKeys} (has ${node.size()})`)
-    }
-    if (node.size() < minKeys) {
-      if (node !== tree.root) {
-        errors.push(`${validator.levelView(level)} ${node.id} has too few keys! - should have no less than ${minKeys} (has ${node.size()})`)
+    // B-tree docs from http://www.cburch.com/cs/340/reading/btree/index.html
+
+    // A B+-tree maintains the following invariants:
+
+    // Every node has one more references than it has keys.
+    // All leaves are at the same distance from the root.
+    // For every non-leaf node N with k being the number of keys in N: all keys in the first child's subtree are less than N's first key; and all keys in the ith child's subtree (2 ≤ i ≤ k) are between the (i − 1)th key of n and the ith key of n.
+    // The root has at least two children.
+    // Every non-leaf, non-root node has at least floor(d / 2) children.
+    // Each leaf contains at least floor(d / 2) keys.
+    // Every key from the table appears in a leaf, in left-to-right sorted order.
+
+    // Every node has one more references than it has keys.
+    if (nodeType === 'node') {
+      if ((node.keys.length + 1) !== node.children.length) {
+        errors.push(`${validator.levelView(level)} ${node.id} wrong number of references! - keys=${node.keys.length}, children=${node.children.length}`)
       }
     }
 
-    // Check for correct number of children
-    if (node.parent === null) {
-      if (node.size() !== (node.children.length - 1) && node.children.length !== 0) {
-        errors.push(`${validator.levelView(level)} ${node.id} number of children does not match number of keys! - (has ${node.size()} keys, and ${node.children.length} children)`)
+    if (isRoot) { // The root has at least two children.
+      if (node.values.length === 0) {
+        if (node.children.length === 1) {
+          errors.push(`${validator.levelView(level)} ${node.id} root must have at least 2 children!`)
+        }
       }
-    } else {
-      if (node.values.length === 0 && node.size() !== (node.children.length - 1)) {
-        errors.push(`${validator.levelView(level)} ${node.id} number of children does not match number of keys! - (has ${node.size()} keys, and ${node.children.length} children)`)
+      if (node.keys.length > maxNodeKeys) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too many keys! - should have no more than ${maxNodeKeys} (has ${node.keys.length})`)
+      }
+    } else { // Check for correct number of keys
+      if (node.keys.length > maxNodeKeys) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too many keys! - should have no more than ${maxNodeKeys} (has ${node.keys.length})`)
+      }
+      if (node.keys.length < minNodeKeys) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too few keys! - should have no less than ${minNodeKeys} (has ${node.keys.length})`)
+      }
+    }
+
+    // Every non-leaf, non-root node has at least floor(branchingFactor / 2) children.
+    if (isRoot === false && nodeType === 'node') {
+      if (node.next !== null) { // nodes dont have references to siblings
+        errors.push(`${validator.levelView(level)} ${node.id} should not have a next node`)
+      }
+      if (node.prev !== null) {
+        errors.push(`${validator.levelView(level)} ${node.id} should not have a prev node`)
+      }
+      if (node.children.length < minChildren) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too few children! - (has ${node.keys.length} keys, and ${node.children.length} children)`)
+      }
+      if (node.children.length > maxChildren) { // and at most (branchingFactor) children
+        errors.push(`${validator.levelView(level)} ${node.id} has too many children! - (has ${node.keys.length} keys, and ${node.children.length} children)`)
+      }
+    }
+
+    // Each leaf contains at least floor(branchingFactor / 2) keys, and values.
+    if (isRoot === false && nodeType === 'leaf') {
+      if (node.keys.length < minChildren) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too few keys! - (has ${node.keys.length} keys, and ${node.values.length} values)`)
+      }
+      if (node.values.length < minChildren) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too few values! - (has ${node.keys.length} keys, and ${node.values.length} values)`)
+      }
+      if (node.keys.length > maxChildren) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too many keys! - (has ${node.keys.length} keys, and ${node.values.length} values)`)
+      }
+      if (node.values.length > maxChildren) {
+        errors.push(`${validator.levelView(level)} ${node.id} has too many values! - (has ${node.keys.length} keys, and ${node.values.length} values)`)
       }
     }
 
@@ -74,7 +126,7 @@ var validator = {
       }
     }
 
-    // Validate keys
+    // For every non-leaf node N with k being the number of keys in N: all keys in the first child's subtree are less than N's first key; and all keys in the ith child's subtree (2 ≤ i ≤ k) are between the (i − 1)th key of n and the ith key of n.
     if (checks.range) {
       for (let key of node.keys) {
         if (checks.range[0] !== null) {
@@ -88,6 +140,43 @@ var validator = {
           }
         }
       }
+    }
+
+    // Every key from the table appears in a leaf, in left-to-right sorted order.
+    if (isRoot) {
+      var currNode = node
+      var maxLoop = 10000
+      var loop = 1
+      var currKey = null
+      while (currNode.children.length > 0 && loop < maxLoop) {
+        currNode = currNode.children[0]
+        loop++
+      }
+
+      if (currNode.prev !== null) {
+        errors.push(`${validator.levelView(level)} ${node.id} leftmost node should have no previous node!`)
+      }
+
+      loop = 1
+      while (currNode.next && loop < maxLoop) {
+
+        for (let i = 0; i < currNode.keys.length; i++) {
+          if (currKey !== null) {
+            if (currKey >= currNode.keys[i]) {
+              errors.push(`${validator.levelView(level)} ${node.id} Keys are not in sorted order!`)
+            }
+          }
+          currKey = currNode.keys[i]
+        }
+
+        currNode = currNode.next
+        loop++
+      }
+
+      if (currNode.next !== null) {
+        errors.push(`${validator.levelView(level)} ${node.id} rightmost node should have no next node!`)
+      }
+
     }
 
     // Validate all children

@@ -32,8 +32,8 @@ console.timeEnd('Done!')
 describe('BPlusIndex', function () {
 
   describe('Numeric key tests', function () {
-    var bpindex = new BPlusIndex({debug: false, branchingFactor: 9})
-    var testCount = 500
+    var bpindex = new BPlusIndex({debug: false, branchingFactor: 3})
+    var testCount = 100
 
     it(`should have a valid structure after every inject (testing ${testCount} times)`, function () {
       var errors = []
@@ -47,7 +47,7 @@ describe('BPlusIndex', function () {
 
       if (errors.length > 0) {
         console.log(errors)
-        console.log(bpindex.dumpTree())
+        console.log(JSON.stringify(bpindex.dumpTree(), null, 4))
       }
 
       assert.lengthOf(errors, 0, 'Errors array is not empty')
@@ -79,7 +79,7 @@ describe('BPlusIndex', function () {
 
   describe('String key tests', function () {
     var bpindex = new BPlusIndex({debug: false, branchingFactor: 9})
-    var testCount = 500
+    var testCount = 100
 
     it(`should have a valid structure after every inject (testing ${testCount} times)`, function () {
       var errors = []
@@ -93,7 +93,7 @@ describe('BPlusIndex', function () {
 
       if (errors.length > 0) {
         console.log(errors)
-        console.log(bpindex.dumpTree())
+        console.log(JSON.stringify(bpindex.dumpTree(), null, 4))
       }
 
       assert.lengthOf(errors, 0, 'Errors array is not empty')
