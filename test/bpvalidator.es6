@@ -90,6 +90,7 @@ var validator = {
       }
     }
 
+    // Validate all children
     for (let i = 0; i < node.children.length; i++) {
       errors = errors.concat(validator.validateNode(tree, node.children[i], {parent: node, range: childRanges[i], level: level + 1}))
     }
