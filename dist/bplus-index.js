@@ -82,6 +82,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        id: leaf.id,
 	        keys: leaf.keys,
 	        values: leaf.values,
+	        prev: leaf.prev ? leaf.prev.id : null,
+	        next: leaf.next ? leaf.next.id : null,
 	        children: []
 	      };
 
@@ -194,15 +196,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        leftLeaf.parent = parent;
-	        leftLeaf.prev = prev;
-	        leftLeaf.next = rightLeaf;
+	        // leftLeaf.prev = prev
+	        // leftLeaf.next = rightLeaf
 	        leftLeaf.children = children.slice(0, splitPoint);
 	        leftLeaf.keys = keys.slice(0, splitPoint);
 	        leftLeaf.values = values.slice(0, splitPoint);
 
 	        rightLeaf.parent = parent;
-	        rightLeaf.prev = leftLeaf;
-	        rightLeaf.next = next;
+	        // rightLeaf.prev = leftLeaf
+	        // rightLeaf.next = next
 	        rightLeaf.children = children.slice(splitPoint);
 	        rightLeaf.keys = keys.slice(splitPoint);
 	        rightLeaf.values = values.slice(splitPoint);
@@ -218,6 +220,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            parent.keys = [keys[splitPoint]];
 	            leftLeaf.parent = parent;
 	            rightLeaf.parent = parent;
+	            leftLeaf.next = rightLeaf;
+	            rightLeaf.prev = leftLeaf;
 	            if (this.debug) {
 	              console.log('SPLIT ROOT LEAF');
 	              console.log(JSON.stringify(this.dumpTree(), null, 2));
@@ -252,6 +256,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            utils.replaceAt(parent.children, leftLeaf, childPos);
 	            utils.insertAt(parent.keys, rightLeaf.keys[0], childPos);
 	            utils.insertAt(parent.children, rightLeaf, childPos + 1);
+
+	            leftLeaf.prev = leaf.prev;
+	            leftLeaf.next = rightLeaf;
+	            rightLeaf.prev = leftLeaf;
+	            rightLeaf.next = leaf.next;
+
 	            if (this.debug) {
 	              console.log('SPLIT BRANCH LEAF');
 	              console.log(JSON.stringify(this.dumpTree(), null, 2));
@@ -406,11 +416,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	              // Copy remaining keys and values to a sibling
 	              leftSibling.keys = leftSibling.keys.concat(leaf.keys);
 	              leftSibling.values = leftSibling.values.concat(leaf.values);
-	              leftSibling.next = leaf.next;
 	            } else {
 	              rightSibling.keys = leaf.keys.concat(rightSibling.keys);
 	              rightSibling.values = leaf.values.concat(rightSibling.values);
-	              rightSibling.prev = leaf.prev;
+	            }
+
+	            if (leaf.prev) {
+	              leaf.prev.next = leaf.next;
+	            }
+	            if (leaf.next) {
+	              leaf.next.prev = leaf.prev;
 	            }
 
 	            // Empty Leaf
