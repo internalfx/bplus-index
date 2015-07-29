@@ -1,6 +1,6 @@
 {
   "name": "bplus-index",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A B+tree",
   "main": "dist/bplus-index.js",
   "scripts": {
