@@ -148,6 +148,8 @@ var validator = {
       var maxLoop = 10000
       var loop = 1
       var currKey = null
+
+      // Descend to first leaf
       while (currNode.children.length > 0 && loop < maxLoop) {
         currNode = currNode.children[0]
         loop++
@@ -157,6 +159,7 @@ var validator = {
         errors.push(`${validator.levelView(level)} ${node.id} leftmost node should have no previous node!`)
       }
 
+      // Traverse entire array of keys
       loop = 1
       while (currNode.next && loop < maxLoop) {
 
