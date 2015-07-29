@@ -2,6 +2,8 @@
 
 A JavaScript implementation of a B+tree structure.
 
+A B+tree is very useful for fast lookups, ranges and sorting.
+
 ### Currently implemented
 
 - `inject(key, val)`
