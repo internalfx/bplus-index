@@ -31,16 +31,22 @@ class BPlusIndex {
   }
 
   inject (key, val) {
-    if (this.debug) console.log(`INJECT ${key}`)
+    if (this.debug) console.log(`INJECT ${key} = ${val}`)
     var leaf = this._findLeaf(key)
     leaf.injectData(key, val)
     this._splitLeaf(leaf)
   }
 
   eject (key, val) {
-    if (this.debug) console.log(`EJECT ${key}`)
+    if (this.debug) console.log(`EJECT ${key} = ${val}`)
     var leaf = this._findLeaf(key)
-    leaf.ejectData(key, val)
+    var loc = leaf.ejectData(key, val)
+    if (loc.found && loc.index === 0 && leaf.parent) {
+      if (leaf.keys.length > 0 && key !== leaf.keys[0]) {
+        if (this.debug) console.log(`REPLACE LEAF KEYS ${key} -> ${leaf.keys[0]}`)
+        leaf.parent.replaceKey(key, leaf.keys[0])
+      }
+    }
     this._mergeLeaf(leaf)
   }
 
@@ -192,10 +198,11 @@ class BPlusIndex {
       if (leaf.children.length === 1) {
         leaf.children[0].parent = null
         this.root = leaf.children[0]
+        this.root.updateKeys()
 
         leaf.children = null
       } else {
-        // leaf.updateKeys()
+        leaf.updateKeys()
         leaf.setParentOnChildren()
       }
     } else {
@@ -220,36 +227,36 @@ class BPlusIndex {
           leaf.keys.unshift(leftSibling.keys.pop())
           leaf.children.unshift(leftSibling.children.pop())
           utils.replaceAt(leaf.parent.keys, leaf.keys[0], (childPos - 1))
-          // leaf.updateKeys()
+          leaf.updateKeys()
           leaf.setParentOnChildren()
-          // leftSibling.updateKeys()
+          leftSibling.updateKeys()
           leftSibling.setParentOnChildren()
 
-          // leaf.parent.updateKeys()
+          leaf.parent.updateKeys()
 
         } else if (rightSibling && rightSibling.size() > this._minKeys()) { // Check the right sibling
 
           leaf.keys.push(rightSibling.keys.shift())
           leaf.children.push(rightSibling.children.shift())
           utils.replaceAt(leaf.parent.keys, rightSibling.keys[0], (leaf.parent.children.indexOf(rightSibling) - 1))
-          // leaf.updateKeys()
+          leaf.updateKeys()
           leaf.setParentOnChildren()
-          // rightSibling.updateKeys()
+          rightSibling.updateKeys()
           rightSibling.setParentOnChildren()
 
-          // leaf.parent.updateKeys()
+          leaf.parent.updateKeys()
 
         } else {
 
           if (leftSibling) { // Copy remaining keys and children to a sibling
             leftSibling.keys = leftSibling.keys.concat(leaf.keys)
             leftSibling.children = leftSibling.children.concat(leaf.children)
-            // leftSibling.updateKeys()
+            leftSibling.updateKeys()
             leftSibling.setParentOnChildren()
           } else {
             rightSibling.keys = leaf.keys.concat(rightSibling.keys)
             rightSibling.children = leaf.children.concat(rightSibling.children)
-            // rightSibling.updateKeys()
+            rightSibling.updateKeys()
             rightSibling.setParentOnChildren()
           }
 
@@ -261,7 +268,7 @@ class BPlusIndex {
           utils.removeAt(leaf.parent.children, childPos)
 
           // Update keys on parent branch
-          // leaf.parent.updateKeys()
+          leaf.parent.updateKeys()
 
         }
 

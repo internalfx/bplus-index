@@ -17,7 +17,8 @@ class Leaf {
     if (val !== null) {
       var location = utils.binarySearch(this.keys, key)
       if (location.found) {
-        this.values[location.index].push(val)
+        var dataLocation = utils.binarySearch(this.values[location.index], val)
+        utils.insertAt(this.values[location.index], val, dataLocation.index)
       } else {
         utils.insertAt(this.keys, key, location.index)
         utils.insertAt(this.values, [val], location.index)
@@ -42,6 +43,8 @@ class Leaf {
         }
       }
     }
+
+    return keyLocation
   }
 
   get (key) {
@@ -67,16 +70,37 @@ class Leaf {
     }
   }
 
+  replaceKey (key, newKey) {
+    var loc = utils.binarySearch(this.keys, key)
+
+    if (loc.found) {
+      if (this.debug) console.log(`replace ${key} with ${newKey} in leaf ${this.id}`)
+      utils.replaceAt(this.keys, newKey, loc.index)
+    }
+
+    if (this.parent) {
+      this.parent.replaceKey(key, newKey)
+    }
+  }
+
   updateKeys () {
     if (this.hasChildren()) {
       var keys = []
       for (let i = 1; i < this.children.length; i++) {
         let child = this.children[i]
-        keys.push(child.keys[0])
+        keys.push(this.detectKey(child))
       }
       if (keys.length > 0) {
         this.keys = keys
       }
+    }
+  }
+
+  detectKey (node) {
+    if (node.hasChildren()) {
+      return this.detectKey(node.children[0])
+    } else {
+      return node.keys[0]
     }
   }
 }

@@ -57,8 +57,14 @@ var validator = {
     }
 
     // Check for correct number of children
-    if (node.values.length === 0 && node.size() !== (node.children.length - 1)) {
-      errors.push(`${validator.levelView(level)} ${node.id} number of children does not match number of keys! - (has ${node.size()} keys, and ${node.children.length} children)`)
+    if (node.parent === null) {
+      if (node.size() !== (node.children.length - 1) && node.children.length !== 0) {
+        errors.push(`${validator.levelView(level)} ${node.id} number of children does not match number of keys! - (has ${node.size()} keys, and ${node.children.length} children)`)
+      }
+    } else {
+      if (node.values.length === 0 && node.size() !== (node.children.length - 1)) {
+        errors.push(`${validator.levelView(level)} ${node.id} number of children does not match number of keys! - (has ${node.size()} keys, and ${node.children.length} children)`)
+      }
     }
 
     // Validate parent child relationship

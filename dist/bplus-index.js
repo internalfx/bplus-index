@@ -120,7 +120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'inject',
 	    value: function inject(key, val) {
-	      if (this.debug) console.log('INJECT ' + key);
+	      if (this.debug) console.log('INJECT ' + key + ' = ' + val);
 	      var leaf = this._findLeaf(key);
 	      leaf.injectData(key, val);
 	      this._splitLeaf(leaf);
@@ -128,9 +128,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'eject',
 	    value: function eject(key, val) {
-	      if (this.debug) console.log('EJECT ' + key);
+	      if (this.debug) console.log('EJECT ' + key + ' = ' + val);
 	      var leaf = this._findLeaf(key);
-	      leaf.ejectData(key, val);
+	      var loc = leaf.ejectData(key, val);
+	      if (loc.found && loc.index === 0 && leaf.parent) {
+	        if (leaf.keys.length > 0 && key !== leaf.keys[0]) {
+	          if (this.debug) console.log('REPLACE LEAF KEYS ' + key + ' -> ' + leaf.keys[0]);
+	          leaf.parent.replaceKey(key, leaf.keys[0]);
+	        }
+	      }
 	      this._mergeLeaf(leaf);
 	    }
 	  }, {
@@ -296,10 +302,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (leaf.children.length === 1) {
 	          leaf.children[0].parent = null;
 	          this.root = leaf.children[0];
+	          this.root.updateKeys();
 
 	          leaf.children = null;
 	        } else {
-	          // leaf.updateKeys()
+	          leaf.updateKeys();
 	          leaf.setParentOnChildren();
 	        }
 	      } else {
@@ -326,49 +333,50 @@ return /******/ (function(modules) { // webpackBootstrap
 	            leaf.keys.unshift(leftSibling.keys.pop());
 	            leaf.children.unshift(leftSibling.children.pop());
 	            utils.replaceAt(leaf.parent.keys, leaf.keys[0], childPos - 1);
-	            // leaf.updateKeys()
+	            leaf.updateKeys();
 	            leaf.setParentOnChildren();
-	            // leftSibling.updateKeys()
+	            leftSibling.updateKeys();
 	            leftSibling.setParentOnChildren();
 
-	            // leaf.parent.updateKeys()
+	            leaf.parent.updateKeys();
 	          } else if (rightSibling && rightSibling.size() > this._minKeys()) {
-	              // Check the right sibling
+	            // Check the right sibling
 
-	              leaf.keys.push(rightSibling.keys.shift());
-	              leaf.children.push(rightSibling.children.shift());
-	              utils.replaceAt(leaf.parent.keys, rightSibling.keys[0], leaf.parent.children.indexOf(rightSibling) - 1);
-	              // leaf.updateKeys()
-	              leaf.setParentOnChildren();
-	              // rightSibling.updateKeys()
-	              rightSibling.setParentOnChildren();
+	            leaf.keys.push(rightSibling.keys.shift());
+	            leaf.children.push(rightSibling.children.shift());
+	            utils.replaceAt(leaf.parent.keys, rightSibling.keys[0], leaf.parent.children.indexOf(rightSibling) - 1);
+	            leaf.updateKeys();
+	            leaf.setParentOnChildren();
+	            rightSibling.updateKeys();
+	            rightSibling.setParentOnChildren();
 
-	              // leaf.parent.updateKeys()
+	            leaf.parent.updateKeys();
+	          } else {
+
+	            if (leftSibling) {
+	              // Copy remaining keys and children to a sibling
+	              leftSibling.keys = leftSibling.keys.concat(leaf.keys);
+	              leftSibling.children = leftSibling.children.concat(leaf.children);
+	              leftSibling.updateKeys();
+	              leftSibling.setParentOnChildren();
 	            } else {
+	              rightSibling.keys = leaf.keys.concat(rightSibling.keys);
+	              rightSibling.children = leaf.children.concat(rightSibling.children);
+	              rightSibling.updateKeys();
+	              rightSibling.setParentOnChildren();
+	            }
 
-	                if (leftSibling) {
-	                  // Copy remaining keys and children to a sibling
-	                  leftSibling.keys = leftSibling.keys.concat(leaf.keys);
-	                  leftSibling.children = leftSibling.children.concat(leaf.children);
-	                  // leftSibling.updateKeys()
-	                  leftSibling.setParentOnChildren();
-	                } else {
-	                  rightSibling.keys = leaf.keys.concat(rightSibling.keys);
-	                  rightSibling.children = leaf.children.concat(rightSibling.children);
-	                  // rightSibling.updateKeys()
-	                  rightSibling.setParentOnChildren();
-	                }
+	            // Empty Leaf
+	            leaf.keys = [];
+	            leaf.children = [];
+	            // leaf.updateKeys()
 
-	                // Empty Leaf
-	                leaf.keys = [];
-	                leaf.children = [];
+	            // Remove leaf from parent
+	            utils.removeAt(leaf.parent.children, childPos);
 
-	                // Remove leaf from parent
-	                utils.removeAt(leaf.parent.children, childPos);
-
-	                // Update keys on parent branch
-	                // leaf.parent.updateKeys()
-	              }
+	            // Update keys on parent branch
+	            leaf.parent.updateKeys();
+	          }
 
 	          if (this.debug) {
 	            console.log('MERGE BRANCH NODE');
@@ -468,7 +476,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (val !== null) {
 	        var location = utils.binarySearch(this.keys, key);
 	        if (location.found) {
-	          this.values[location.index].push(val);
+	          var dataLocation = utils.binarySearch(this.values[location.index], val);
+	          utils.insertAt(this.values[location.index], val, dataLocation.index);
 	        } else {
 	          utils.insertAt(this.keys, key, location.index);
 	          utils.insertAt(this.values, [val], location.index);
@@ -499,6 +508,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 	        }
 	      }
+
+	      return keyLocation;
 	    }
 	  }, {
 	    key: 'get',
@@ -549,17 +560,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	  }, {
+	    key: 'replaceKey',
+	    value: function replaceKey(key, newKey) {
+	      var loc = utils.binarySearch(this.keys, key);
+
+	      if (loc.found) {
+	        if (this.debug) console.log('replace ' + key + ' with ' + newKey + ' in leaf ' + this.id);
+	        utils.replaceAt(this.keys, newKey, loc.index);
+	      }
+
+	      if (this.parent) {
+	        this.parent.replaceKey(key, newKey);
+	      }
+	    }
+	  }, {
 	    key: 'updateKeys',
 	    value: function updateKeys() {
 	      if (this.hasChildren()) {
 	        var keys = [];
 	        for (var i = 1; i < this.children.length; i++) {
 	          var child = this.children[i];
-	          keys.push(child.keys[0]);
+	          keys.push(this.detectKey(child));
 	        }
 	        if (keys.length > 0) {
 	          this.keys = keys;
 	        }
+	      }
+	    }
+	  }, {
+	    key: 'detectKey',
+	    value: function detectKey(node) {
+	      if (node.hasChildren()) {
+	        return this.detectKey(node.children[0]);
+	      } else {
+	        return node.keys[0];
 	      }
 	    }
 	  }]);
