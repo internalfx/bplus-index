@@ -26,10 +26,10 @@ class Leaf {
     }
   }
 
-  ejectData (key, val=null) {
+  ejectData (key, val) {
     var keyLocation = utils.binarySearch(this.keys, key)
     if (keyLocation.found) {
-      if (val === null) { // If no val is passed in delete all data at this key
+      if (typeof val === 'undefined') { // If no val is passed in delete all data at this key
         utils.removeAt(this.keys, keyLocation.index)
         utils.removeAt(this.values, keyLocation.index)
       } else { // remove only the relevant value

@@ -132,7 +132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      while (currLoc !== null) {
 	        result = result.concat(currLoc.leaf.values[currLoc.index]);
-	        currLoc = this.stepForward(currLoc.index, currLoc.leaf);
+	        currLoc = this._stepForward(currLoc.index, currLoc.leaf);
 	      }
 
 	      if (options.sortDescending === true) {
@@ -155,16 +155,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var currLoc = { index: loc.index, leaf: startLeaf };
 
 	      if (loc.index >= startLeaf.keys.length) {
-	        currLoc = this.stepForward(currLoc.index, currLoc.leaf);
+	        currLoc = this._stepForward(currLoc.index, currLoc.leaf);
 	      }
 
 	      if (loc.found && options.lowerInclusive === false) {
-	        currLoc = this.stepForward(currLoc.index, currLoc.leaf);
+	        currLoc = this._stepForward(currLoc.index, currLoc.leaf);
 	      }
 
 	      while (currLoc.leaf.keys[currLoc.index] < upperBound) {
 	        result = result.concat(currLoc.leaf.values[currLoc.index]);
-	        currLoc = this.stepForward(currLoc.index, currLoc.leaf);
+	        currLoc = this._stepForward(currLoc.index, currLoc.leaf);
 	      }
 
 	      if (currLoc.leaf.keys[currLoc.index] <= upperBound && options.upperInclusive === true) {
@@ -176,28 +176,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      return result;
-	    }
-	  }, {
-	    key: 'stepForward',
-	    value: function stepForward(index, leaf) {
-	      if (index + 1 < leaf.keys.length) {
-	        return { index: index + 1, leaf: leaf };
-	      } else if (leaf.next) {
-	        return { index: 0, leaf: leaf.next };
-	      } else {
-	        return null;
-	      }
-	    }
-	  }, {
-	    key: 'stepBackward',
-	    value: function stepBackward(index, leaf) {
-	      if (index - 1 < 0) {
-	        return { index: index - 1, leaf: leaf };
-	      } else if (leaf.prev) {
-	        return { index: leaf.prev.keys.length - 1, leaf: leaf.prev };
-	      } else {
-	        return null;
-	      }
 	    }
 	  }, {
 	    key: 'inject',
@@ -220,6 +198,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      }
 	      this._mergeLeaf(leaf);
+	    }
+	  }, {
+	    key: '_stepForward',
+	    value: function _stepForward(index, leaf) {
+	      if (index + 1 < leaf.keys.length) {
+	        return { index: index + 1, leaf: leaf };
+	      } else if (leaf.next) {
+	        return { index: 0, leaf: leaf.next };
+	      } else {
+	        return null;
+	      }
+	    }
+	  }, {
+	    key: '_stepBackward',
+	    value: function _stepBackward(index, leaf) {
+	      if (index - 1 < 0) {
+	        return { index: index - 1, leaf: leaf };
+	      } else if (leaf.prev) {
+	        return { index: leaf.prev.keys.length - 1, leaf: leaf.prev };
+	      } else {
+	        return null;
+	      }
 	    }
 	  }, {
 	    key: '_minKeys',
@@ -274,15 +274,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        leftLeaf.parent = parent;
-	        // leftLeaf.prev = prev
-	        // leftLeaf.next = rightLeaf
 	        leftLeaf.children = children.slice(0, splitPoint);
 	        leftLeaf.keys = keys.slice(0, splitPoint);
 	        leftLeaf.values = values.slice(0, splitPoint);
 
 	        rightLeaf.parent = parent;
-	        // rightLeaf.prev = leftLeaf
-	        // rightLeaf.next = next
 	        rightLeaf.children = children.slice(splitPoint);
 	        rightLeaf.keys = keys.slice(splitPoint);
 	        rightLeaf.values = values.slice(splitPoint);
@@ -580,12 +576,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'ejectData',
-	    value: function ejectData(key) {
-	      var val = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-
+	    value: function ejectData(key, val) {
 	      var keyLocation = utils.binarySearch(this.keys, key);
 	      if (keyLocation.found) {
-	        if (val === null) {
+	        if (typeof val === 'undefined') {
 	          // If no val is passed in delete all data at this key
 	          utils.removeAt(this.keys, keyLocation.index);
 	          utils.removeAt(this.values, keyLocation.index);

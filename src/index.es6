@@ -41,7 +41,7 @@ class BPlusIndex {
 
     while (currLoc !== null) {
       result = result.concat(currLoc.leaf.values[currLoc.index])
-      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+      currLoc = this._stepForward(currLoc.index, currLoc.leaf)
     }
 
     if (options.sortDescending === true) {
@@ -62,16 +62,16 @@ class BPlusIndex {
     var currLoc = {index: loc.index, leaf: startLeaf}
 
     if (loc.index >= startLeaf.keys.length) {
-      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+      currLoc = this._stepForward(currLoc.index, currLoc.leaf)
     }
 
     if (loc.found && options.lowerInclusive === false) {
-      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+      currLoc = this._stepForward(currLoc.index, currLoc.leaf)
     }
 
     while (currLoc.leaf.keys[currLoc.index] < upperBound) {
       result = result.concat(currLoc.leaf.values[currLoc.index])
-      currLoc = this.stepForward(currLoc.index, currLoc.leaf)
+      currLoc = this._stepForward(currLoc.index, currLoc.leaf)
     }
 
     if (currLoc.leaf.keys[currLoc.index] <= upperBound && options.upperInclusive === true) {
@@ -84,26 +84,6 @@ class BPlusIndex {
 
     return result
 
-  }
-
-  stepForward (index, leaf) {
-    if (index + 1 < leaf.keys.length) {
-      return {index: (index + 1), leaf: leaf}
-    } else if (leaf.next) {
-      return {index: 0, leaf: leaf.next}
-    } else {
-      return null
-    }
-  }
-
-  stepBackward (index, leaf) {
-    if (index - 1 < 0) {
-      return {index: (index - 1), leaf: leaf}
-    } else if (leaf.prev) {
-      return {index: (leaf.prev.keys.length - 1), leaf: leaf.prev}
-    } else {
-      return null
-    }
   }
 
   inject (key, val) {
@@ -124,6 +104,26 @@ class BPlusIndex {
       }
     }
     this._mergeLeaf(leaf)
+  }
+
+  _stepForward (index, leaf) {
+    if (index + 1 < leaf.keys.length) {
+      return {index: (index + 1), leaf: leaf}
+    } else if (leaf.next) {
+      return {index: 0, leaf: leaf.next}
+    } else {
+      return null
+    }
+  }
+
+  _stepBackward (index, leaf) {
+    if (index - 1 < 0) {
+      return {index: (index - 1), leaf: leaf}
+    } else if (leaf.prev) {
+      return {index: (leaf.prev.keys.length - 1), leaf: leaf.prev}
+    } else {
+      return null
+    }
   }
 
   _minKeys () {
