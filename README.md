@@ -8,9 +8,9 @@ A B+tree is very useful for fast lookups, ranges and sorting.
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-## API
+# API
 
-#### inject(key, value)
+## inject(key, value)
 
 Adds a new value to the index at the given key.
 
@@ -19,16 +19,16 @@ Adds a new value to the index at the given key.
 | Key | String or Number | The key that the value will be indexed by |
 | Value | String or Number | The value stored at the given key |
 
-#### eject(key, value)
+## eject(key[, value])
 
-Removes a value from the index at the given key. If value is undefined, eject removes all values at the given key.
+Removes a value from the index at the given key. **If value is undefined, eject removes *all* values at the given key.**
 
 | Argument | Type | Description |
 | --- | --- | --- |
 | Key | String or Number | The key where the value is stored |
 | Value | String or Number | The value to be removed |
 
-#### get(key)
+## get(key)
 
 Retrieves all values stored at given key
 
@@ -36,7 +36,7 @@ Retrieves all values stored at given key
 | --- | --- | --- |
 | Key | String or Number | The key to search for |
 
-#### getAll(options={sortDescending: true})
+## getAll([options])
 
 Gets all values from the index sorted by key.
 
@@ -51,7 +51,7 @@ Gets all values from the index sorted by key.
 | sortDescending | Boolean | Sort values by key in descending order | `False` |
 
 
-#### getRange(lowerBound, upperBound, options={lowerInclusive: true, upperInclusive: false, sortDescending: false})
+## getRange(lowerBound, upperBound[, options])
 
 `getRange` will return all values where that value's key is in the specified range
 
