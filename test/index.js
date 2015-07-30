@@ -3,12 +3,12 @@
 /* global describe */
 /* global it */
 
-require('babel/register')
+// require('babel/register')
 
 // var _ = require('lodash')
 var assert = require('chai').assert
-var faker = require('faker')
-var validate = require('./bpvalidator.es6')
+// var faker = require('faker')
+var validate = require('./lib/bpvalidator')
 var BPlusIndex = require('../dist/bplus-index')
 // var benchArray = []
 
@@ -136,27 +136,12 @@ var db = [
   title: 'Senior Klingon Consultant' }
 ]
 
-var recCount = 500
-var randomDb = []
-console.log('Creating database of ' + recCount + ' records.')
-console.time('Done!')
-for (let i = 0; i < recCount; i++) {
-  let rec = {
-    age: faker.random.number({max: 70}),
-    name: faker.name.findName(),
-    phone: faker.phone.phoneNumber(),
-    title: faker.name.jobTitle()
-  }
-  randomDb.push(rec)
-}
-console.timeEnd('Done!')
+describe('BPlusIndex Correctness', () => {
 
-describe('BPlusIndex', function () {
-
-  describe('Numeric key indexes', function () {
+  describe('Numeric key indexes', () => {
     var bpindex = new BPlusIndex({debug: false, branchingFactor: 5})
 
-    it(`should have a valid structure after every inject`, function () {
+    it(`should have a valid structure after every inject`, () => {
       var errors = []
 
       for (let rec of db) {
@@ -173,14 +158,14 @@ describe('BPlusIndex', function () {
       assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
 
-    it(`should correctly lookup keys`, function () {
+    it(`should correctly lookup keys`, () => {
       assert.deepEqual(bpindex.get(13), ['Elmo Hansen'])
       assert.deepEqual(bpindex.get(64), ['Clemens Howell Dr.'])
       assert.sameMembers(bpindex.get(8), ['Makayla McLaughlin', 'Magdalen Zulauf Mr.'])
       assert.deepEqual(bpindex.get(99), [])
     })
 
-    it(`should correctly lookup ranges sorted asc`, function () {
+    it(`should correctly lookup ranges sorted asc`, () => {
       assert.deepEqual(
         bpindex.getRange(1, 5, {lowerInclusive: true, upperInclusive: false, sortDescending: false}),
         ['Clemmie Powlowski', 'Serena Bruen', 'Albertha Simonis Ms.', 'Kavon Hammes']
@@ -199,7 +184,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should correctly lookup ranges sorted desc`, function () {
+    it(`should correctly lookup ranges sorted desc`, () => {
       assert.deepEqual(
         bpindex.getRange(1, 5, {lowerInclusive: true, upperInclusive: false, sortDescending: true}),
         ['Kavon Hammes', 'Albertha Simonis Ms.', 'Serena Bruen', 'Clemmie Powlowski']
@@ -218,7 +203,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should correctly return the entire index sorted asc`, function () {
+    it(`should correctly return the entire index sorted asc`, () => {
       assert.deepEqual(
         bpindex.getAll(),
         [ 'Clemmie Powlowski',
@@ -254,7 +239,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should correctly return the entire index sorted desc`, function () {
+    it(`should correctly return the entire index sorted desc`, () => {
       assert.deepEqual(
         bpindex.getAll({sortDescending: true}),
         [ 'Shana Lubowitz',
@@ -290,7 +275,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should have a valid structure after every eject`, function () {
+    it(`should have a valid structure after every eject`, () => {
       var errors = []
 
       for (let rec of db) {
@@ -307,16 +292,16 @@ describe('BPlusIndex', function () {
       assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
 
-    it(`should be empty after ejecting all previously injected records`, function () {
+    it(`should be empty after ejecting all previously injected records`, () => {
       assert.lengthOf(bpindex.root.children, 0, 'Errors array is not empty')
       assert.lengthOf(bpindex.root.values, 0, 'Errors array is not empty')
     })
   })
 
-  describe('String key indexes', function () {
+  describe('String key indexes', () => {
     var bpindex = new BPlusIndex({debug: false, branchingFactor: 5})
 
-    it(`should have a valid structure after every inject`, function () {
+    it(`should have a valid structure after every inject`, () => {
       var errors = []
 
       for (let rec of db) {
@@ -333,13 +318,13 @@ describe('BPlusIndex', function () {
       assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
 
-    it(`should correctly lookup keys`, function () {
+    it(`should correctly lookup keys`, () => {
       assert.deepEqual(bpindex.get('Legacy Security Planner'), ['Ashton Oberbrunner', 'Ms. Kiera Hodkiewicz'])
       assert.deepEqual(bpindex.get('Dynamic Communications Agent'), ['Hilda O\'Kon'])
       assert.deepEqual(bpindex.get('A job nobody has'), [])
     })
 
-    it(`should correctly lookup ranges sorted asc`, function () {
+    it(`should correctly lookup ranges sorted asc`, () => {
       assert.deepEqual(
         bpindex.getRange('Senior Detector Agent', 'Senior Klingon Consultant', {lowerInclusive: true, upperInclusive: false, sortDescending: false}),
         ['Clemmie Powlowski', 'Serena Bruen', 'Albertha Simonis Ms.', 'Kavon Hammes']
@@ -358,7 +343,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should correctly lookup ranges sorted desc`, function () {
+    it(`should correctly lookup ranges sorted desc`, () => {
       assert.deepEqual(
         bpindex.getRange('Senior Detector Agent', 'Senior Klingon Consultant', {lowerInclusive: true, upperInclusive: false, sortDescending: true}),
         ['Kavon Hammes', 'Albertha Simonis Ms.', 'Serena Bruen', 'Clemmie Powlowski']
@@ -377,7 +362,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should correctly return the entire index sorted asc`, function () {
+    it(`should correctly return the entire index sorted asc`, () => {
       assert.deepEqual(
         bpindex.getAll(),
         [ 'Magdalen Zulauf Mr.',
@@ -413,7 +398,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should correctly return the entire index sorted desc`, function () {
+    it(`should correctly return the entire index sorted desc`, () => {
       assert.deepEqual(
         bpindex.getAll({sortDescending: true}),
         [ 'Kyle MacGyver',
@@ -449,7 +434,7 @@ describe('BPlusIndex', function () {
       )
     })
 
-    it(`should have a valid structure after every eject`, function () {
+    it(`should have a valid structure after every eject`, () => {
       var errors = []
 
       for (let rec of db) {
@@ -466,7 +451,7 @@ describe('BPlusIndex', function () {
       assert.lengthOf(errors, 0, 'Errors array is not empty')
     })
 
-    it(`should be empty after ejecting all previously injected records`, function () {
+    it(`should be empty after ejecting all previously injected records`, () => {
       assert.lengthOf(bpindex.root.children, 0, 'Errors array is not empty')
       assert.lengthOf(bpindex.root.values, 0, 'Errors array is not empty')
     })
