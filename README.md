@@ -4,6 +4,8 @@ A JavaScript implementation of a B+tree structure.
 
 A B+tree is very useful for fast lookups, ranges and sorting.
 
+[![NPM](https://nodei.co/npm/bplus-index.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/bplus-index/)
+
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ## API
