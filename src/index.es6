@@ -169,15 +169,11 @@ class BPlusIndex {
       if (next != null) { next.prev = rightLeaf }
 
       leftLeaf.parent = parent
-      // leftLeaf.prev = prev
-      // leftLeaf.next = rightLeaf
       leftLeaf.children = children.slice(0, splitPoint)
       leftLeaf.keys = keys.slice(0, splitPoint)
       leftLeaf.values = values.slice(0, splitPoint)
 
       rightLeaf.parent = parent
-      // rightLeaf.prev = leftLeaf
-      // rightLeaf.next = next
       rightLeaf.children = children.slice(splitPoint)
       rightLeaf.keys = keys.slice(splitPoint)
       rightLeaf.values = values.slice(splitPoint)
