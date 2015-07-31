@@ -68,3 +68,13 @@ Gets all values from the index sorted by key.
 | lowerInclusive | Boolean | Include values where the key equals `lowerBound` | `True` |
 | upperInclusive | Boolean | Include values where the key equals `upperBound` | `False` |
 | sortDescending | Boolean | Sort values by key in descending order | `False` |
+
+# Running mocha tests
+
+`npm test`
+
+# Running performance tests
+
+`npm install -g babel`
+
+`babel-node performance.js`
