@@ -695,18 +695,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return a < b ? -1 : a > b ? 1 : 0;
 	  },
 
-	  // sortedInsert: (key, array) => {
-	  //   array.splice(utils.insertionPoint(key, array) + 1, 0, key)
-	  //   return array
-	  // },
-
-	  // mergeObj: (obj1, obj2) => {
-	  //   for (var attrname in obj2) {
-	  //     obj1[attrname] = obj2[attrname]
-	  //   }
-	  //   return obj1
-	  // },
-
 	  mergeObj: function mergeObj(o1, o2) {
 	    if (o1 == null || o2 == null) {
 	      return o1;
@@ -739,20 +727,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    array[index] = value;
 	    return array;
 	  },
-
-	  // insertionPoint: (array, value, start, end) => {
-	  //   start = start || 0
-	  //   end = end || array.length
-	  //   var pivot = parseInt(start + (end - start) / 2, 10)
-	  //   if (end - start <= 1 || array[pivot] === value) {
-	  //     return pivot
-	  //   }
-	  //   if (array[pivot] < value) {
-	  //     return utils.insertionPoint(value, array, pivot, end)
-	  //   } else {
-	  //     return utils.insertionPoint(value, array, start, pivot)
-	  //   }
-	  // },
 
 	  binarySearch: function binarySearch(array, value) {
 	    var userFunc = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
