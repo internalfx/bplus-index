@@ -700,11 +700,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	  //   return array
 	  // },
 
-	  mergeObj: function mergeObj(obj1, obj2) {
-	    for (var attrname in obj2) {
-	      obj1[attrname] = obj2[attrname];
+	  // mergeObj: (obj1, obj2) => {
+	  //   for (var attrname in obj2) {
+	  //     obj1[attrname] = obj2[attrname]
+	  //   }
+	  //   return obj1
+	  // },
+
+	  mergeObj: function mergeObj(o1, o2) {
+	    if (o1 == null || o2 == null) {
+	      return o1;
 	    }
-	    return obj1;
+
+	    for (var key in o2) {
+	      if (o2.hasOwnProperty(key)) {
+	        o1[key] = o2[key];
+	      }
+	    }
+
+	    return o1;
 	  },
 
 	  unique_id: function unique_id() {

@@ -8,16 +8,18 @@ var utils = {
     return (a < b) ? -1 : ((a > b) ? 1 : 0)
   },
 
-  // sortedInsert: (key, array) => {
-  //   array.splice(utils.insertionPoint(key, array) + 1, 0, key)
-  //   return array
-  // },
-
-  mergeObj: (obj1, obj2) => {
-    for (var attrname in obj2) {
-      obj1[attrname] = obj2[attrname]
+  mergeObj: (o1, o2) => {
+    if (o1 == null || o2 == null) {
+      return o1
     }
-    return obj1
+
+    for (var key in o2) {
+      if (o2.hasOwnProperty(key)) {
+        o1[key] = o2[key]
+      }
+    }
+
+    return o1
   },
 
   unique_id: () => {
@@ -38,20 +40,6 @@ var utils = {
     array[index] = value
     return array
   },
-
-  // insertionPoint: (array, value, start, end) => {
-  //   start = start || 0
-  //   end = end || array.length
-  //   var pivot = parseInt(start + (end - start) / 2, 10)
-  //   if (end - start <= 1 || array[pivot] === value) {
-  //     return pivot
-  //   }
-  //   if (array[pivot] < value) {
-  //     return utils.insertionPoint(value, array, pivot, end)
-  //   } else {
-  //     return utils.insertionPoint(value, array, start, pivot)
-  //   }
-  // },
 
   binarySearch: (array, value, userFunc=null) => {
     var lo = 0
