@@ -4,7 +4,7 @@
   "description": "A B+tree",
   "main": "dist/bplus-index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
   },
   "repository": {
     "type": "git",

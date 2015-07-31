@@ -1,3 +1,5 @@
 --compilers js:babel/register
 --sort
 --full-trace
+--slow 500
+--timeout 50000
