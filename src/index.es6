@@ -2,7 +2,6 @@
 
 var Leaf = require('./leaf')
 var utils = require('./utils')
-var merge = require('lodash.merge')
 
 class BPlusIndex {
   constructor (config={}) {
@@ -34,7 +33,7 @@ class BPlusIndex {
   }
 
   getAll (opts={}) {
-    var options = merge({sortDescending: false}, opts)
+    var options = utils.mergeObj({sortDescending: false}, opts)
     var startLeaf = this._findLeaf(utils.detectKey(this.root))
     var currLoc = {index: 0, leaf: startLeaf}
     var result = []
@@ -53,7 +52,7 @@ class BPlusIndex {
   }
 
   getRange (lowerBound, upperBound, opts={}) {
-    var options = merge({lowerInclusive: true, upperInclusive: false, sortDescending: false}, opts)
+    var options = utils.mergeObj({lowerInclusive: true, upperInclusive: false, sortDescending: false}, opts)
     var result = []
 
     var startLeaf = this._findLeaf(lowerBound)

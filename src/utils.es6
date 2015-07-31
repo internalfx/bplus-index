@@ -2,8 +2,6 @@
 
 // Some code taken with gratitiude from the LokiJS project. Thank you Joe Minichino!
 
-var pullAt = require('lodash.pullat')
-
 var utils = {
 
   defaultSort: (a, b) => {
@@ -15,6 +13,13 @@ var utils = {
   //   return array
   // },
 
+  mergeObj: (obj1, obj2) => {
+    for (var attrname in obj2) {
+      obj1[attrname] = obj2[attrname]
+    }
+    return obj1
+  },
+
   unique_id: () => {
     return `${(Math.random() + 1).toString(36).substr(2)}`
   },
@@ -25,7 +30,7 @@ var utils = {
   },
 
   removeAt: (array, index) => {
-    pullAt(array, index)
+    array.splice(index, 1);
     return array
   },
 

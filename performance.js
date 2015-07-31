@@ -58,7 +58,7 @@ async.series([
     suite.add({
       name: 'tree',
       setup: () => {
-        bindex = new BPlusIndex({debug: false, branchingFactor: 50})
+        bindex = new BPlusIndex({debug: false, branchingFactor: 500})
       },
       fn: () => {
         for (let rec of db) {
@@ -84,9 +84,7 @@ async.series([
     })
 
     suite.on('complete', () => {
-      suite.forEach((obj) => {
-        results.push(obj.hz)
-      })
+      suite.forEach((obj) => { results.push(obj.hz) })
       console.log(compileResult(results))
       done()
     })
@@ -100,7 +98,7 @@ async.series([
 
     var suite = new Benchmark.Suite()
     var results = []
-    var bindex = new BPlusIndex({debug: false, branchingFactor: 50})
+    var bindex = new BPlusIndex({debug: false, branchingFactor: 500})
     var aindex = []
     var randKey
 
@@ -137,9 +135,7 @@ async.series([
     })
 
     suite.on('complete', () => {
-      suite.forEach((obj) => {
-        results.push(obj.hz)
-      })
+      suite.forEach((obj) => { results.push(obj.hz) })
       console.log(compileResult(results))
       done()
     })
@@ -153,7 +149,7 @@ async.series([
 
     var suite = new Benchmark.Suite()
     var results = []
-    var bindex = new BPlusIndex({debug: false, branchingFactor: 50})
+    var bindex = new BPlusIndex({debug: false, branchingFactor: 500})
     var aindex = []
 
     for (let rec of db) {
@@ -187,9 +183,7 @@ async.series([
     })
 
     suite.on('complete', () => {
-      suite.forEach((obj) => {
-        results.push(obj.hz)
-      })
+      suite.forEach((obj) => { results.push(obj.hz) })
       console.log(compileResult(results))
       done()
     })
@@ -203,7 +197,7 @@ async.series([
 
     var suite = new Benchmark.Suite()
     var results = []
-    var bindex = new BPlusIndex({debug: false, branchingFactor: 50})
+    var bindex = new BPlusIndex({debug: false, branchingFactor: 500})
     var aindex = []
 
     for (let rec of db) {
@@ -237,9 +231,7 @@ async.series([
     })
 
     suite.on('complete', () => {
-      suite.forEach((obj) => {
-        results.push(obj.hz)
-      })
+      suite.forEach((obj) => { results.push(obj.hz) })
       console.log(compileResult(results))
       done()
     })
