@@ -136,7 +136,7 @@ var db = [
   title: 'Senior Klingon Consultant' }
 ]
 
-describe('BPlusIndex Correctness', () => {
+describe('BPlusIndex', () => {
 
   describe('Numeric key indexes', () => {
     var bpindex = new BPlusIndex({debug: false, branchingFactor: 5})
