@@ -25,7 +25,7 @@ var compileResult = (results) => {
 }
 
 var db = []
-var dbSize = 50000
+var dbSize = 100000
 var bf = 1000
 
 console.log('Creating database of ' + dbSize + ' records')
