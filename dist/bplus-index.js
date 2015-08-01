@@ -559,10 +559,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  _createClass(Leaf, [{
 	    key: 'injectData',
-	    value: function injectData(key) {
-	      var val = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-
-	      if (val !== null) {
+	    value: function injectData(key, val) {
+	      if (typeof val !== 'undefined') {
 	        var location = utils.binarySearch(this.keys, key);
 	        if (location.found) {
 	          var dataLocation = utils.binarySearch(this.values[location.index], val);
@@ -685,9 +683,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports) {
 
-	'use strict';
-
+	
 	// Some code taken with gratitiude from the LokiJS project. Thank you Joe Minichino!
+
+	"use strict";
 
 	var utils = {
 
@@ -710,7 +709,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  unique_id: function unique_id() {
-	    return '' + (Math.random() + 1).toString(36).substr(2);
+	    return "" + (Math.random() + 1).toString(36).substr(2);
 	  },
 
 	  insertAt: function insertAt(array, value, index) {
