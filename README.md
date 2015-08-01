@@ -2,6 +2,7 @@
 
 ![npm version](https://img.shields.io/npm/v/bplus-index.svg)
 ![license](https://img.shields.io/dub/l/vibe-d.svg)
+![build](https://travis-ci.org/internalfx/bplus-index.svg?branch=master)
 
 A JavaScript implementation of a B+tree structure.
 
