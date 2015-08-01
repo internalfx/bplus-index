@@ -1,5 +1,7 @@
 # bplus-index
 
+![npm version](https://img.shields.io/npm/v/bplus-index.svg)
+
 A JavaScript implementation of a B+tree structure.
 
 A B+tree is very useful for fast lookups, ranges and sorting.
