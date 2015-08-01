@@ -239,5 +239,56 @@ async.series([
 
     suite.run()
 
+  },
+  (done) => {
+
+    console.log('\n\nTesting eject(key, value)\n'.yellow)
+
+    var suite = new Benchmark.Suite()
+    var results = []
+    var bindex
+    var aindex
+    var randRec
+
+    suite.add({
+      name: 'tree',
+      setup: () => {
+        bindex = new BPlusIndex({debug: false, branchingFactor: bf})
+        for (let rec of db) {
+          bindex.inject(rec.age, rec.name)
+        }
+        randRec = db[_.random(0, db.length)]
+      },
+      fn: () => {
+        bindex.eject(randRec.age, randRec.name)
+      }
+    })
+
+    suite.add({
+      name: 'array',
+      setup: () => {
+        aindex = []
+        for (let rec of db) {
+          aindex.push({key: rec.age, val: rec.name})
+        }
+        randRec = db[_.random(0, db.length)]
+      },
+      fn: function () {
+        _.remove(aindex, {key: randRec.age, val: randRec.name})
+      }
+    })
+
+    suite.on('error', (event) => {
+      done(event.target.error)
+    })
+
+    suite.on('complete', () => {
+      suite.forEach((obj) => { results.push(obj.hz) })
+      console.log(compileResult(results))
+      done()
+    })
+
+    suite.run()
+
   }
 ])
