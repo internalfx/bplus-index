@@ -4,9 +4,9 @@
 ![license](https://img.shields.io/dub/l/vibe-d.svg)
 ![build](https://travis-ci.org/internalfx/bplus-index.svg?branch=master)
 
-A JavaScript implementation of a [B+tree](https://en.wikipedia.org/wiki/B%2B_tree) structure.
+A JavaScript implementation of a <a href="https://en.wikipedia.org/wiki/B%2B_tree" target="_blank">B+tree</a> structure.
 
-A [B+tree](https://en.wikipedia.org/wiki/B%2B_tree) is very useful for fast lookups, ranges and sorting.
+A <a href="https://en.wikipedia.org/wiki/B%2B_tree" target="_blank">B+tree</a> is very useful for fast lookups, ranges and sorting.
 
 [![NPM](https://nodei.co/npm/bplus-index.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/bplus-index/)
 
