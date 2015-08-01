@@ -1,4 +1,3 @@
-'use strict'
 
 /* global describe */
 /* global it */

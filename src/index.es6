@@ -1,4 +1,3 @@
-'use strict'
 
 var Leaf = require('./leaf')
 var utils = require('./utils')
