@@ -81,4 +81,4 @@ Gets all values from the index sorted by key.
 
 `npm install -g babel`
 
-`babel-node performance.js`
+`babel-node benchmark.js`
