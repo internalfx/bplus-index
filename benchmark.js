@@ -26,6 +26,7 @@ var compileResult = (results) => {
 
 var db = []
 var dbSize = 50000
+var bf = 1000
 
 console.log('Creating database of ' + dbSize + ' records')
 console.time('Done!')
@@ -58,7 +59,7 @@ async.series([
     suite.add({
       name: 'tree',
       setup: () => {
-        bindex = new BPlusIndex({debug: false, branchingFactor: 500})
+        bindex = new BPlusIndex({debug: false, branchingFactor: bf})
       },
       fn: () => {
         for (let rec of db) {
@@ -98,7 +99,7 @@ async.series([
 
     var suite = new Benchmark.Suite()
     var results = []
-    var bindex = new BPlusIndex({debug: false, branchingFactor: 500})
+    var bindex = new BPlusIndex({debug: false, branchingFactor: bf})
     var aindex = []
     var randKey
 
@@ -149,7 +150,7 @@ async.series([
 
     var suite = new Benchmark.Suite()
     var results = []
-    var bindex = new BPlusIndex({debug: false, branchingFactor: 500})
+    var bindex = new BPlusIndex({debug: false, branchingFactor: bf})
     var aindex = []
 
     for (let rec of db) {
@@ -197,7 +198,7 @@ async.series([
 
     var suite = new Benchmark.Suite()
     var results = []
-    var bindex = new BPlusIndex({debug: false, branchingFactor: 500})
+    var bindex = new BPlusIndex({debug: false, branchingFactor: bf})
     var aindex = []
 
     for (let rec of db) {
