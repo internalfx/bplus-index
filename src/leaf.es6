@@ -12,8 +12,8 @@ class Leaf {
     this.values = []
   }
 
-  injectData (key, val=null) {
-    if (val !== null) {
+  injectData (key, val) {
+    if (typeof val !== 'undefined') {
       var location = utils.binarySearch(this.keys, key)
       if (location.found) {
         var dataLocation = utils.binarySearch(this.values[location.index], val)
