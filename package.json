@@ -2,7 +2,7 @@
   "name": "bplus-index",
   "version": "0.0.5",
   "description": "A B+tree",
-  "main": "dist/bplus-index.js",
+  "main": "./dist/bplus-index.js",
   "scripts": {
     "test": "gulp test"
   },
