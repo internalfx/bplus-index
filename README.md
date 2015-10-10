@@ -1,7 +1,7 @@
 # bplus-index
 
-![npm version](https://img.shields.io/npm/v/bplus-index.svg)
-![license](https://img.shields.io/dub/l/vibe-d.svg)
+[![npm version](https://img.shields.io/npm/v/bplus-index.svg)](https://www.npmjs.com/package/bplus-index)
+[![license](https://img.shields.io/npm/l/bplus-index.svg)](https://github.com/internalfx/bplus-index/blob/master/LICENSE)
 ![build](https://travis-ci.org/internalfx/bplus-index.svg?branch=master)
 
 A JavaScript implementation of a <a href="https://en.wikipedia.org/wiki/B%2B_tree" target="_blank">B+tree</a> structure.
