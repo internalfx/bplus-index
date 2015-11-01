@@ -2,7 +2,7 @@
 var utils = require('./utils')
 
 class Leaf {
-  constructor (config={}) {
+  constructor (config = {}) {
     this.id = utils.unique_id()
     this.parent = null
     this.prev = null

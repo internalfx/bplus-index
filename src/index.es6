@@ -3,7 +3,7 @@ var Leaf = require('./leaf')
 var utils = require('./utils')
 
 class BPlusIndex {
-  constructor (config={}) {
+  constructor (config = {}) {
     this.bf = config.branchingFactor || 50
     this.debug = config.debug || false
     this.root = new Leaf()
@@ -31,7 +31,7 @@ class BPlusIndex {
     return this._findLeaf(key).get(key)
   }
 
-  getAll (opts={}) {
+  getAll (opts = {}) {
     var options = utils.mergeObj({sortDescending: false}, opts)
     var startLeaf = this._findLeaf(utils.detectKey(this.root))
     var currLoc = {index: 0, leaf: startLeaf}
@@ -47,10 +47,9 @@ class BPlusIndex {
     }
 
     return result
-
   }
 
-  getRange (lowerBound, upperBound, opts={}) {
+  getRange (lowerBound, upperBound, opts = {}) {
     var options = utils.mergeObj({lowerInclusive: true, upperInclusive: false, sortDescending: false}, opts)
     var result = []
 
@@ -81,7 +80,6 @@ class BPlusIndex {
     }
 
     return result
-
   }
 
   inject (key, val) {
@@ -208,7 +206,6 @@ class BPlusIndex {
             console.log(JSON.stringify(this.dumpTree(), null, 2))
           }
         }
-
       } else { // If we are not splitting root
 
         var childPos = parent.children.indexOf(leaf)
@@ -232,7 +229,6 @@ class BPlusIndex {
             console.log(JSON.stringify(this.dumpTree(), null, 2))
           }
           this._splitLeaf(parent)
-
         } else { // If we are splitting a node
 
           rightLeaf.keys = keys.slice(splitPoint + 1)
@@ -248,7 +244,6 @@ class BPlusIndex {
             console.log(JSON.stringify(this.dumpTree(), null, 2))
           }
           this._splitLeaf(parent)
-
         }
       }
     }
@@ -311,7 +306,6 @@ class BPlusIndex {
           leftSibling.setParentOnChildren()
 
           leaf.parent.updateKeys()
-
         } else if (rightSibling && rightSibling.size() > this._minKeys()) { // Check the right sibling
 
           leaf.keys.push(rightSibling.keys.shift())
@@ -323,9 +317,7 @@ class BPlusIndex {
           rightSibling.setParentOnChildren()
 
           leaf.parent.updateKeys()
-
         } else {
-
           if (leftSibling) { // Copy remaining keys and children to a sibling
             leftSibling.keys = leftSibling.keys.concat(leaf.keys)
             leftSibling.children = leftSibling.children.concat(leaf.children)
@@ -347,7 +339,6 @@ class BPlusIndex {
 
           // Update keys on parent branch
           leaf.parent.updateKeys()
-
         }
 
         if (this.debug) {
@@ -356,7 +347,6 @@ class BPlusIndex {
         }
 
         this._mergeLeaf(leaf.parent)
-
       } else { // If we are merging a leaf
 
         // Try to get a key from a sibling if they are big enough
@@ -365,13 +355,11 @@ class BPlusIndex {
           leaf.keys.unshift(leftSibling.keys.pop())
           leaf.values.unshift(leftSibling.values.pop())
           utils.replaceAt(leaf.parent.keys, leaf.keys[0], (childPos - 1))
-
         } else if (rightSibling && rightSibling.size() > this._minKeys()) { // Check the right sibling
 
           leaf.keys.push(rightSibling.keys.shift())
           leaf.values.push(rightSibling.values.shift())
           utils.replaceAt(leaf.parent.keys, rightSibling.keys[0], (leaf.parent.children.indexOf(rightSibling) - 1))
-
         } else { // There is no sibling to get a value from, remove the leaf
 
           if (leftSibling) { // Copy remaining keys and values to a sibling
@@ -394,7 +382,6 @@ class BPlusIndex {
 
           // // Update keys on parent branch
           leaf.parent.updateKeys()
-
         }
 
         if (this.debug) {
@@ -403,11 +390,8 @@ class BPlusIndex {
         }
 
         this._mergeLeaf(leaf.parent)
-
       }
-
     }
-
   }
 }
 

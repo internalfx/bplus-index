@@ -4,7 +4,7 @@
 
 var assert = require('chai').assert
 var validate = require('./lib/bpvalidator')
-var BPlusIndex = require('../dist/bplus-index')
+var BPlusIndex = require('../src/index')
 
 var db = [
   { age: 46,
@@ -131,7 +131,6 @@ var db = [
 ]
 
 describe('BPlusIndex', () => {
-
   describe('Numeric key indexes', () => {
     var bpindex = new BPlusIndex({debug: false, branchingFactor: 5})
 
@@ -449,7 +448,5 @@ describe('BPlusIndex', () => {
       assert.lengthOf(bpindex.root.children, 0, 'Errors array is not empty')
       assert.lengthOf(bpindex.root.values, 0, 'Errors array is not empty')
     })
-
   })
-
 })

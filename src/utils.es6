@@ -31,7 +31,7 @@ var utils = {
   },
 
   removeAt: (array, index) => {
-    array.splice(index, 1);
+    array.splice(index, 1)
     return array
   },
 
@@ -40,7 +40,7 @@ var utils = {
     return array
   },
 
-  binarySearch: (array, value, userFunc=null) => {
+  binarySearch: (array, value, userFunc = null) => {
     var lo = 0
     var hi = array.length
     var compared

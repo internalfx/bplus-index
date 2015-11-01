@@ -437,7 +437,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            leaf.parent.updateKeys();
 	          } else {
-
 	            if (leftSibling) {
 	              // Copy remaining keys and children to a sibling
 	              leftSibling.keys = leftSibling.keys.concat(leaf.keys);
